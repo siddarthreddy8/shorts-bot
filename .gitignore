@@ -34,3 +34,16 @@ remotion/node_modules/
 .idea/
 *.swp
 .DS_Store
+
+# AI tool artifacts
+.agent/
+.agents/
+.claude/
+.gemini/
+remotion/.github/
+
+# Generated Remotion assets (audio, scene images)
+remotion/public/audio/*
+remotion/public/scenes/*
+!remotion/public/audio/.gitkeep
+!remotion/public/scenes/.gitkeep
