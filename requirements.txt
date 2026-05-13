@@ -1,0 +1,49 @@
+# Build tools (must come first)
+setuptools>=75.0.0
+wheel>=0.44.0
+
+# Core
+python-dotenv==1.0.1
+pyyaml==6.0.2
+click==8.1.7
+
+# YouTube
+google-api-python-client==2.149.0
+google-auth-oauthlib==1.2.1
+google-auth-httplib2==0.2.0
+yt-dlp>=2026.1.1
+
+# Transcription — primary: YouTube captions (instant, free)
+youtube-transcript-api>=1.2.4
+
+# Transcription — fallback: local Whisper (only if captions unavailable)
+openai-whisper
+torch>=2.0.0
+torchaudio>=2.0.0
+
+# AI / Script (OpenRouter — OpenAI-compatible gateway to all models)
+openai==1.54.0
+
+# TTS
+elevenlabs==1.9.0
+
+# Review UI
+streamlit==1.39.0
+
+# Database
+sqlalchemy==2.0.35
+
+# Scheduling & Notifications
+apscheduler==3.10.4
+win10toast==0.9; sys_platform == "win32"
+
+# Utils
+requests==2.32.3
+pydantic==2.9.2
+loguru==0.7.2
+tenacity==9.0.0
+
+# Dev
+pytest==8.3.3
+black==24.10.0
+ruff==0.6.9

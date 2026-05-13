@@ -1,0 +1,530 @@
+{
+  "captions": [
+    {
+      "word": "चनव",
+      "startMs": 0,
+      "endMs": 383
+    },
+    {
+      "word": "अधकर",
+      "startMs": 418,
+      "endMs": 813
+    },
+    {
+      "word": "पर",
+      "startMs": 871,
+      "endMs": 987
+    },
+    {
+      "word": "हमल",
+      "startMs": 1022,
+      "endMs": 1474
+    },
+    {
+      "word": "कय",
+      "startMs": 1765,
+      "endMs": 1916
+    },
+    {
+      "word": "इसफ",
+      "startMs": 1962,
+      "endMs": 2310
+    },
+    {
+      "word": "मलग",
+      "startMs": 2368,
+      "endMs": 2902
+    },
+    {
+      "word": "पशचम",
+      "startMs": 3146,
+      "endMs": 3506
+    },
+    {
+      "word": "बगल",
+      "startMs": 3564,
+      "endMs": 4133
+    },
+    {
+      "word": "मलद",
+      "startMs": 4284,
+      "endMs": 4969
+    },
+    {
+      "word": "यह",
+      "startMs": 5352,
+      "endMs": 5561
+    },
+    {
+      "word": "चनव",
+      "startMs": 5619,
+      "endMs": 5898
+    },
+    {
+      "word": "स",
+      "startMs": 5956,
+      "endMs": 6037
+    },
+    {
+      "word": "पहल",
+      "startMs": 6095,
+      "endMs": 6478
+    },
+    {
+      "word": "नयय",
+      "startMs": 6803,
+      "endMs": 7105
+    },
+    {
+      "word": "अधकरय",
+      "startMs": 7163,
+      "endMs": 7686
+    },
+    {
+      "word": "पर",
+      "startMs": 7721,
+      "endMs": 7814
+    },
+    {
+      "word": "हमल",
+      "startMs": 7860,
+      "endMs": 8104
+    },
+    {
+      "word": "हआ",
+      "startMs": 8162,
+      "endMs": 8545
+    },
+    {
+      "word": "अपरल",
+      "startMs": 8928,
+      "endMs": 9288
+    },
+    {
+      "word": "म",
+      "startMs": 9358,
+      "endMs": 9752
+    },
+    {
+      "word": "य",
+      "startMs": 10089,
+      "endMs": 10205
+    },
+    {
+      "word": "अधकर",
+      "startMs": 10228,
+      "endMs": 10635
+    },
+    {
+      "word": "मतदत",
+      "startMs": 10693,
+      "endMs": 11111
+    },
+    {
+      "word": "सच",
+      "startMs": 11169,
+      "endMs": 11424
+    },
+    {
+      "word": "ठक",
+      "startMs": 11482,
+      "endMs": 11691
+    },
+    {
+      "word": "करन",
+      "startMs": 11738,
+      "endMs": 11981
+    },
+    {
+      "word": "गए",
+      "startMs": 12028,
+      "endMs": 12144
+    },
+    {
+      "word": "थ",
+      "startMs": 12225,
+      "endMs": 12539
+    },
+    {
+      "word": "तणमल",
+      "startMs": 12875,
+      "endMs": 13340
+    },
+    {
+      "word": "और",
+      "startMs": 13433,
+      "endMs": 13526
+    },
+    {
+      "word": "अनय",
+      "startMs": 13595,
+      "endMs": 13827
+    },
+    {
+      "word": "मसलम",
+      "startMs": 13874,
+      "endMs": 14199
+    },
+    {
+      "word": "दल",
+      "startMs": 14269,
+      "endMs": 14489
+    },
+    {
+      "word": "क",
+      "startMs": 14524,
+      "endMs": 14594
+    },
+    {
+      "word": "नतओ",
+      "startMs": 14652,
+      "endMs": 15012
+    },
+    {
+      "word": "न",
+      "startMs": 15035,
+      "endMs": 15221
+    },
+    {
+      "word": "घरव",
+      "startMs": 15604,
+      "endMs": 15987
+    },
+    {
+      "word": "कय",
+      "startMs": 16045,
+      "endMs": 16509
+    },
+    {
+      "word": "कई",
+      "startMs": 16800,
+      "endMs": 16974
+    },
+    {
+      "word": "घट",
+      "startMs": 17078,
+      "endMs": 17450
+    },
+    {
+      "word": "बधक",
+      "startMs": 17531,
+      "endMs": 17844
+    },
+    {
+      "word": "बनकर",
+      "startMs": 17890,
+      "endMs": 18216
+    },
+    {
+      "word": "रख",
+      "startMs": 18250,
+      "endMs": 18773
+    },
+    {
+      "word": "कछ",
+      "startMs": 19110,
+      "endMs": 19284
+    },
+    {
+      "word": "पर",
+      "startMs": 19365,
+      "endMs": 19446
+    },
+    {
+      "word": "हमल",
+      "startMs": 19493,
+      "endMs": 19736
+    },
+    {
+      "word": "हआ",
+      "startMs": 19783,
+      "endMs": 20224
+    },
+    {
+      "word": "गडय",
+      "startMs": 20433,
+      "endMs": 20793
+    },
+    {
+      "word": "तड",
+      "startMs": 20839,
+      "endMs": 21281
+    },
+    {
+      "word": "अब",
+      "startMs": 21617,
+      "endMs": 22058
+    },
+    {
+      "word": "तणमल",
+      "startMs": 22500,
+      "endMs": 22987
+    },
+    {
+      "word": "क",
+      "startMs": 23069,
+      "endMs": 23161
+    },
+    {
+      "word": "बलक",
+      "startMs": 23266,
+      "endMs": 23545
+    },
+    {
+      "word": "अधयकष",
+      "startMs": 23626,
+      "endMs": 24044
+    },
+    {
+      "word": "सरयल",
+      "startMs": 24647,
+      "endMs": 24973
+    },
+    {
+      "word": "शख",
+      "startMs": 25054,
+      "endMs": 25309
+    },
+    {
+      "word": "और",
+      "startMs": 25692,
+      "endMs": 25855
+    },
+    {
+      "word": "परव",
+      "startMs": 25925,
+      "endMs": 26192
+    },
+    {
+      "word": "अधयकष",
+      "startMs": 26273,
+      "endMs": 26702
+    },
+    {
+      "word": "यसफ",
+      "startMs": 27295,
+      "endMs": 27747
+    },
+    {
+      "word": "शख",
+      "startMs": 27817,
+      "endMs": 28107
+    },
+    {
+      "word": "गरफतर",
+      "startMs": 28386,
+      "endMs": 29094
+    },
+    {
+      "word": "यसमन",
+      "startMs": 29373,
+      "endMs": 29895
+    },
+    {
+      "word": "सबन",
+      "startMs": 29965,
+      "endMs": 30267
+    },
+    {
+      "word": "क",
+      "startMs": 30325,
+      "endMs": 30394
+    },
+    {
+      "word": "चनव",
+      "startMs": 30452,
+      "endMs": 30731
+    },
+    {
+      "word": "एजट",
+      "startMs": 30836,
+      "endMs": 31381
+    },
+    {
+      "word": "अबदर",
+      "startMs": 31532,
+      "endMs": 31857
+    },
+    {
+      "word": "रहमन",
+      "startMs": 31904,
+      "endMs": 32542
+    },
+    {
+      "word": "और",
+      "startMs": 32693,
+      "endMs": 32821
+    },
+    {
+      "word": "खदय",
+      "startMs": 32879,
+      "endMs": 33181
+    },
+    {
+      "word": "अधकर",
+      "startMs": 33227,
+      "endMs": 33680
+    },
+    {
+      "word": "खतबददन",
+      "startMs": 33924,
+      "endMs": 34597
+    },
+    {
+      "word": "शख",
+      "startMs": 34702,
+      "endMs": 34934
+    },
+    {
+      "word": "भ",
+      "startMs": 35015,
+      "endMs": 35096
+    },
+    {
+      "word": "गरफतर",
+      "startMs": 35155,
+      "endMs": 35793
+    },
+    {
+      "word": "य",
+      "startMs": 36037,
+      "endMs": 36153
+    },
+    {
+      "word": "गरफतरय",
+      "startMs": 36199,
+      "endMs": 36687
+    },
+    {
+      "word": "दखत",
+      "startMs": 36722,
+      "endMs": 37082
+    },
+    {
+      "word": "ह",
+      "startMs": 37140,
+      "endMs": 37430
+    },
+    {
+      "word": "क",
+      "startMs": 37535,
+      "endMs": 37697
+    },
+    {
+      "word": "लकततर",
+      "startMs": 37767,
+      "endMs": 38208
+    },
+    {
+      "word": "क",
+      "startMs": 38254,
+      "endMs": 38312
+    },
+    {
+      "word": "रकष",
+      "startMs": 38359,
+      "endMs": 38730
+    },
+    {
+      "word": "कतन",
+      "startMs": 38881,
+      "endMs": 39334
+    },
+    {
+      "word": "मशकल",
+      "startMs": 39392,
+      "endMs": 39717
+    },
+    {
+      "word": "ह",
+      "startMs": 39798,
+      "endMs": 40135
+    },
+    {
+      "word": "चनव",
+      "startMs": 40576,
+      "endMs": 40913
+    },
+    {
+      "word": "रकन",
+      "startMs": 40971,
+      "endMs": 41285
+    },
+    {
+      "word": "क",
+      "startMs": 41343,
+      "endMs": 41424
+    },
+    {
+      "word": "कशश",
+      "startMs": 41494,
+      "endMs": 42155
+    },
+    {
+      "word": "नतओ",
+      "startMs": 42596,
+      "endMs": 42956
+    },
+    {
+      "word": "क",
+      "startMs": 42980,
+      "endMs": 43072
+    },
+    {
+      "word": "कय",
+      "startMs": 43154,
+      "endMs": 43340
+    },
+    {
+      "word": "गरफतर",
+      "startMs": 43374,
+      "endMs": 43769
+    },
+    {
+      "word": "कय",
+      "startMs": 43827,
+      "endMs": 44025
+    },
+    {
+      "word": "गय",
+      "startMs": 44071,
+      "endMs": 44512
+    },
+    {
+      "word": "Watch",
+      "startMs": 45023,
+      "endMs": 45406
+    },
+    {
+      "word": "the",
+      "startMs": 45464,
+      "endMs": 45592
+    },
+    {
+      "word": "full",
+      "startMs": 45720,
+      "endMs": 45963
+    },
+    {
+      "word": "video",
+      "startMs": 46033,
+      "endMs": 46405
+    },
+    {
+      "word": "link",
+      "startMs": 47194,
+      "endMs": 47449
+    },
+    {
+      "word": "in",
+      "startMs": 47531,
+      "endMs": 47658
+    },
+    {
+      "word": "description",
+      "startMs": 47728,
+      "endMs": 48715
+    }
+  ],
+  "duration_sec": 48.715
+}

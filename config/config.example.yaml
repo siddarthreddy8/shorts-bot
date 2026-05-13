@@ -1,0 +1,56 @@
+# Copy this file to config.yaml and edit.
+
+# Source Telugu channels to monitor daily.
+# Add the channel ID (UCxxxxxxxxxxxxx) not the @handle.
+source_channels:
+  - id: "UC_PLACEHOLDER_CHANNEL_1"
+    name: "Source Channel 1"
+    enabled: true
+  - id: "UC_PLACEHOLDER_CHANNEL_2"
+    name: "Source Channel 2"
+    enabled: true
+
+# Default output preferences (can be overridden per video in the review UI)
+output:
+  language: "english"          # english | hindi
+  default_styles:              # any subset of below
+    - "documentary"
+  visibility: "public"          # public | unlisted | private
+
+# Styles available for script rewriting
+styles:
+  - documentary
+  - comedy
+  - serious
+  - storytelling
+  - explainer
+  - sarcastic
+
+# Script generation
+script:
+  target_words_min: 90
+  target_words_max: 180
+  hook_variants: 3
+  plagiarism_overlap_max: 0.30   # max 30% n-gram overlap with source
+
+# Video render
+video:
+  width: 1080
+  height: 1920
+  fps: 30
+  templates_dir: "./remotion/src/templates"
+  output_dir: "./data/videos"
+
+# Upload metadata template
+upload:
+  title_max_len: 60
+  description_template: |
+    {hook_line}
+
+    🎥 Watch the full video: {long_form_link}
+    📺 Source channel: {source_channel_url}
+
+    #shorts #{topic_tag}
+  default_tags:
+    - "shorts"
+    - "documentary"

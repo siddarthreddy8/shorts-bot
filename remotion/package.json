@@ -1,0 +1,34 @@
+{
+  "name": "shorts-bot-remotion",
+  "version": "0.1.0",
+  "private": true,
+  "description": "Hoog-style motion-graphics video templates for Shorts-Bot",
+  "scripts": {
+    "dev": "remotion studio",
+    "build": "remotion bundle",
+    "render": "remotion render",
+    "render:short": "remotion render HoogMap out.mp4",
+    "upgrade": "remotion upgrade"
+  },
+  "dependencies": {
+    "remotion": "^4.0.0",
+    "@remotion/cli": "^4.0.0",
+    "@remotion/bundler": "^4.0.0",
+    "@remotion/renderer": "^4.0.0",
+    "@remotion/google-fonts": "^4.0.0",
+    "@remotion/captions": "^4.0.0",
+    "@remotion/media-utils": "^4.0.0",
+    "react": "^18.3.1",
+    "react-dom": "^18.3.1",
+    "framer-motion": "^11.11.0",
+    "react-simple-maps": "^3.0.0",
+    "d3-geo": "^3.1.1"
+  },
+  "devDependencies": {
+    "@types/react": "^18.3.11",
+    "@types/react-dom": "^18.3.0",
+    "@types/node": "^22.7.4",
+    "@types/d3-geo": "^3.1.0",
+    "typescript": "^5.6.2"
+  }
+}

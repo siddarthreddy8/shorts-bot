@@ -1,0 +1,36 @@
+.env
+.venv/
+venv/
+__pycache__/
+*.pyc
+*.pyo
+*.egg-info/
+.pytest_cache/
+
+# Secrets
+config/youtube_client_secret.json
+config/youtube_token.json
+
+# Generated data
+data/transcripts/*
+data/scripts/*
+data/videos/*
+data/audio/*
+data/storyboards/*
+!data/**/.gitkeep
+logs/*.log
+
+# Local DB
+*.sqlite
+*.sqlite3
+*.db
+
+# Remotion build output
+remotion/out/
+remotion/node_modules/
+
+# IDE
+.vscode/
+.idea/
+*.swp
+.DS_Store
