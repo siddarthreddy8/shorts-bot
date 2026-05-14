@@ -34,9 +34,13 @@ def render(video_id: str, composition: str | None = None, regenerate: bool = Fal
     _VIDEOS_DIR.mkdir(parents=True, exist_ok=True)
     output_path = _VIDEOS_DIR / f"{video_id}.mp4"
 
-    # Pick composition automatically based on whether a storyboard exists
+    # Use HoogScene only when storyboard visuals are fully generated (not just planned)
     storyboard_path = project_root() / "data" / "storyboards" / f"{video_id}.json"
-    has_storyboard = storyboard_path.exists()
+    has_storyboard = False
+    if storyboard_path.exists():
+        import json as _json
+        _sb = _json.loads(storyboard_path.read_text(encoding="utf-8"))
+        has_storyboard = _sb.get("status") == "generated"
     if composition is None:
         composition = "HoogScene" if has_storyboard else "HoogTypography"
 

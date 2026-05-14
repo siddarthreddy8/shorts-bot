@@ -96,14 +96,14 @@ def generate(
         data = json.loads(script_path.read_text(encoding="utf-8"))
         return GeneratedScript(**data, script_path=script_path)
 
-    model = env("OPENROUTER_MODEL", default="google/gemini-flash-1.5")
+    model = env("OPENROUTER_MODEL", default="anthropic/claude-3-5-haiku")
     client = _build_client()
     style_instr = _style_instruction(styles)
     lang_name = "Hindi" if language == "hindi" else "English"
 
     logger.info(f"Generating script for {video_id} | lang={lang_name} | styles={styles} | model={model}")
 
-    prompt = f"""You are a viral YouTube Shorts scriptwriter. Transform the Telugu transcript below into a {lang_name} Short that earns maximum watch-time and re-watches.
+    prompt = f"""You are a documentary YouTube Shorts scriptwriter specialising in political short-form content. Transform the Telugu transcript below into a compelling {lang_name} 3-minute Short that earns maximum watch-time and re-watches.
 
 ## Source Transcript (Telugu)
 {telugu_transcript[:4000]}
@@ -118,46 +118,55 @@ Hook 2 — COUNTERINTUITIVE: Flip the obvious assumption. Make the viewer think 
 Hook 3 — STAKES/CONSEQUENCE: Make the impact feel immediate. What just changed, or is about to?
 
 Hook rules (apply to all 3):
-- Maximum 10 words
+- Maximum 15 words
 - Strong active verb — no "is", "was", "are" as the main verb
 - No clickbait phrases ("you won't believe", "shocking", "mind-blowing")
 - Each hook must be genuinely different — not the same idea rephrased
 
-## BODY — use this 5-part arc (65–95 words total)
+## BODY — use this 6-block structure (330–420 words total)
 
-1. SETUP (1–2 sentences): Establish the world. Who, where, what was assumed to be true.
-2. RUPTURE (1–2 sentences): What broke that assumption. The event or revelation.
-3. ESCALATION (1–2 sentences): Why this matters more than it first appears. Raise the stakes.
-4. TWIST (1 sentence): The sharpest insight — the thing most people haven't connected yet.
-5. CALLBACK (1 sentence): Echo the hook. This plants the re-watch impulse — the viewer wants to go back and hear the hook again knowing what they now know.
+Each block covers roughly 25–35 seconds of spoken content (60–85 words at 2.5 words/sec). Write all blocks as one continuous narrative — no headers, no labels in the output.
+
+1. CONTEXT (60–80 words): What is happening right now and why it matters. Establish the who, where, and the immediate stakes. Make it feel urgent and relevant today.
+2. BACKGROUND (60–80 words): The hidden history or overlooked factor most people don't know. This reframes everything the viewer just heard. The "actually…" moment that changes the picture.
+3. TURNING POINT (60–80 words): The key event, decision, or conflict that changed everything. Be specific — name dates, places, actors, decisions. This is the engine of the story.
+4. IMPLICATION (60–80 words): What this means for India or the world. Connect the specific event to the larger consequence the viewer can feel. Make the weight land.
+5. CLOSE (30–50 words): One strong takeaway or open loop. Either deliver the sharpest conclusion or leave a tension that makes the viewer think. Echo the hook phrase or image.
 
 Body rules:
 - Output language: {lang_name}
 - ORIGINAL rewrite — do not translate directly, less than 30% word overlap with source
-- Short sentences hit harder than long ones
-- Specific details (names, places, numbers) beat vague generalisations
+- Short declarative sentences. Vary rhythm — land a punchy short sentence after a longer one.
+- Specific details (names, places, numbers, dates) beat vague generalisations
 - No filler phrases ("it's important to note", "in conclusion", "as we can see")
+- Flow naturally block to block — no transitions like "moving on" or "next"
 
 ## HARD LIMIT — WORD COUNT
-The hook (≤10 words) + body (65–95 words) + CTA (8 words) must total UNDER 115 words.
-Count every word before outputting. YouTube Shorts cuts off at 58 seconds — at 2.5 words/sec, 115 words = 46 seconds leaving 12 seconds for natural pauses and pacing.
-If your draft exceeds 115 words, cut the least-essential sentence and try again.
+Hook (≤15 words) + body (330–420 words) + CTA (≤15 words) must total 350–450 words.
+At 2.5 words/sec: 350 words = 140 seconds, 450 words = 180 seconds (3 minutes).
+Count every word before outputting. If draft exceeds 450 words, cut the least-essential sentences from Implication or Close. If under 350, expand Turning Point or Background with one more specific detail.
 
 ## CTA
-One sentence asking viewers to comment their opinion on what just happened. Make it feel like a genuine question, not a generic prompt. Tie it directly to the story — reference a specific person, place, or outcome from the body. Output language: {lang_name}.
+Write ONE sentence that does three things in natural order:
+1. Ask the viewer a specific opinion question tied to this story (reference a person, place, or outcome from the body — not generic)
+2. Ask them to like and subscribe if they found it valuable
+3. Tell them to comment their take below
+
+Keep it conversational, not robotic. Output language: {lang_name}.
+Example: "Do you think Sujit Bose's arrest signals real accountability or political revenge? Like and subscribe for more, and drop your take in the comments."
 
 ## Output Format (JSON only, no other text)
 {{
   "hooks": ["hook 1", "hook 2", "hook 3"],
-  "body": "the full body text here",
-  "cta": "Watch the full video — link in description."
+  "body": "the full body text — all 5 blocks run together as one narrative, no headers or labels",
+  "cta": "your specific question here"
 }}"""
 
     response = client.chat.completions.create(
         model=model,
         messages=[{"role": "user", "content": prompt}],
         temperature=0.9,
-        max_tokens=800,
+        max_tokens=1600,
     )
 
     raw = response.choices[0].message.content.strip()
@@ -165,6 +174,8 @@ One sentence asking viewers to comment their opinion on what just happened. Make
 
     # Strip markdown code fences if present
     raw = re.sub(r"^```(?:json)?\s*|\s*```$", "", raw, flags=re.MULTILINE).strip()
+    # Escape literal newlines/control chars inside JSON string values so json.loads accepts them
+    raw = _sanitize_json_strings(raw)
 
     try:
         data = json.loads(raw)
@@ -219,12 +230,51 @@ def save_approved(video_id: str, hook: str, body: str, cta: str) -> Path:
     return approved_path
 
 
+def _sanitize_json_strings(s: str) -> str:
+    """Escape literal newlines/control chars inside JSON string values."""
+    result: list[str] = []
+    in_string = False
+    escape_next = False
+    for ch in s:
+        if escape_next:
+            result.append(ch)
+            escape_next = False
+        elif ch == "\\":
+            result.append(ch)
+            escape_next = True
+        elif ch == '"':
+            result.append(ch)
+            in_string = not in_string
+        elif in_string and ch == "\n":
+            result.append("\\n")
+        elif in_string and ch == "\r":
+            result.append("\\r")
+        elif in_string and ord(ch) < 0x20:
+            pass  # drop other control chars inside strings
+        else:
+            result.append(ch)
+    return "".join(result)
+
+
 def _recover_json(raw: str) -> dict:
     """Last-resort: try to extract JSON object from messy LLM output."""
-    match = re.search(r"\{.*\}", raw, re.DOTALL)
-    if match:
+    # Try progressively larger JSON substrings (LLM may include preamble/postamble)
+    for match in re.finditer(r"\{", raw):
+        candidate = raw[match.start():]
+        # Find the matching closing brace by counting depth
+        depth, end = 0, -1
+        for i, ch in enumerate(candidate):
+            if ch == "{":
+                depth += 1
+            elif ch == "}":
+                depth -= 1
+                if depth == 0:
+                    end = i + 1
+                    break
+        if end == -1:
+            continue
         try:
-            return json.loads(match.group())
+            return json.loads(candidate[:end])
         except Exception:
-            pass
-    return {"hooks": [], "body": raw, "cta": "Watch the full video — link in description."}
+            continue
+    return {"hooks": [], "body": raw, "cta": "आपकी क्या राय है? नीचे कमेंट करें।"}

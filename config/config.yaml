@@ -27,8 +27,8 @@ styles:
 
 # Script generation
 script:
-  target_words_min: 90
-  target_words_max: 180
+  target_words_min: 350
+  target_words_max: 450
   hook_variants: 3
   plagiarism_overlap_max: 0.30   # max 30% n-gram overlap with source
 

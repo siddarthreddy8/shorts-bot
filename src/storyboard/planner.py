@@ -21,15 +21,16 @@ def _build_client() -> OpenAI:
 
 
 def plan_scenes(script_text: str, duration_sec: float) -> list[dict]:
-    """LLM plans 8-12 scene beats with image prompts for FLUX."""
-    model = env("OPENROUTER_MODEL", default="google/gemini-2.0-flash-001")
+    """LLM plans scene beats with visual type grammar for political documentary style."""
+    model = env("OPENROUTER_MODEL", default="anthropic/claude-3-5-haiku")
     client = _build_client()
     duration_ms = int(duration_sec * 1000)
-    target_scenes = max(6, min(12, round(duration_sec / 6.5)))
+    # 2–5s average cut for political documentary rhythm
+    target_scenes = max(15, min(50, round(duration_sec / 4)))
 
     logger.info(f"Planning {target_scenes} scenes for {duration_sec:.1f}s via {model}")
 
-    prompt = f"""You are a documentary YouTube Shorts visual director. Your style references: Hoog, Vox, Vice News.
+    prompt = f"""You are a political documentary YouTube Shorts visual director. Style references: Hoog, Vox, Vice News, DW Documentary.
 
 ## Approved script
 {script_text}
@@ -38,33 +39,46 @@ def plan_scenes(script_text: str, duration_sec: float) -> list[dict]:
 {duration_sec:.1f} seconds ({duration_ms}ms)
 
 ## Task
-Break this script into exactly {target_scenes} scene beats. Together they MUST cover all {duration_ms}ms, with no gaps.
+Break this script into exactly {target_scenes} visual scene beats. Together they MUST cover all {duration_ms}ms with no gaps. Target 2–5 seconds per scene — short, punchy cuts that match the spoken rhythm.
 
-For each beat, write a SPECIFIC photorealistic image prompt for FLUX AI image generation. Each prompt must include:
-- A specific concrete subject (NOT generic — name the place, object, action, or scene)
-- Setting/location (e.g., "war room", "city street at dusk", "mountain pass")
-- Lighting & mood (e.g., "dramatic chiaroscuro", "harsh midday sun", "neon-lit rain")
-- Camera angle (e.g., "low-angle hero shot", "overhead drone view", "shallow depth of field")
-- Style descriptors: "cinematic", "documentary photography", "9:16 portrait composition", "Hoog channel aesthetic", "moody color grading"
+For each scene:
 
-CRITICAL rules:
-- Avoid showing identifiable real people's faces (use silhouettes, hands, backs, crowds, partial figures)
+### VISUAL TYPE — pick the most appropriate for the content at that moment
+- "map"       — geographic territory, borders, routes, satellite overview. Use when mentioning countries, regions, conflicts, trade routes.
+- "headline"  — news chyron, newspaper front page, TV broadcast screen, breaking news graphic. Use when citing events or announcements.
+- "satellite" — aerial/drone view of a specific location, military installation, city district. Use for location establishing shots.
+- "graph"     — data chart, economic graph, infographic, statistics display. Use when citing numbers, growth, decline.
+- "flag"      — nation's flag, bilateral summit, diplomatic meeting exterior. Use for country-to-country relations.
+- "crowd"     — street protest, political rally, parliament session, public gathering. Use for public reaction or mass events.
+- "document"  — treaty signing, classified file, official letter, UN resolution paper. Use for agreements or official decisions.
+- "portrait"  — a named politician, leader, or public figure being discussed at this exact moment. Use whenever the script names a specific real person.
+- "footage"   — cinematic recreation of the key moment: street scene, military movement, port, factory floor, convoy. Use for action beats.
+
+### PORTRAIT scenes — IMPORTANT
+When the script mentions a specific real person by name (politician, minister, party leader), use visual_type "portrait" and add a "subject_name" field with their full commonly-known English name.
+- Use "subject_name": "Mamata Banerjee" (not "Chief Minister" or "the minister")
+- Use "subject_name": "" only for generic/anonymous figures with no named individual
+
+### VISUAL PROMPT rules
+- Be concrete: name the place, object, or scene. Bad: "tension rising". Good: "smoke rising from port of Karachi, container ships in background, dusk light"
+- For portrait scenes: describe the setting or context around the person, not their face — the real photo will be sourced separately
+- Include: lighting & mood · camera angle · "9:16 portrait composition" · "cinematic documentary" · "Hoog channel aesthetic"
 - Avoid logos, brand names, copyrighted symbols
-- Be visually concrete — bad: "tension rising". Good: "smoke rising from a destroyed police station at dusk, debris in foreground"
-- Vary scenes — maps, locations, objects, abstract symbolism, dramatic moments. Don't repeat similar shots.
-- Mix scene types: establishing shot → close-up detail → wide → object → location → human silhouette
+- Vary the sequence — alternate wide establishing shots with tight detail/evidence shots
+- Match visual type to script content at that exact moment
 
-Motion for each beat — one of:
-- "zoom_in"  — slow push toward subject (use for revelations, tension building)
-- "zoom_out" — slow pull back (use for context, scope reveals)
-- "pan_left" / "pan_right" — horizontal slide (use for landscapes, transitions)
-- "static"   — no motion (use sparingly, only for impactful single shots)
+### MOTION — one of:
+- "zoom_in"   — slow push toward subject (revelations, tension build)
+- "zoom_out"  — slow pull back (context, scope reveals)
+- "pan_left" / "pan_right" — horizontal sweep (landscapes, transitions)
+- "static"    — no motion (use sparingly, for maximum impact stills)
 
 ## Output (JSON only, no other text)
 {{
   "scenes": [
-    {{"start_ms": 0, "end_ms": 4000, "prompt": "...", "motion": "zoom_in"}},
-    {{"start_ms": 4000, "end_ms": 8500, "prompt": "...", "motion": "pan_right"}},
+    {{"start_ms": 0, "end_ms": 3500, "prompt": "...", "motion": "zoom_in", "visual_type": "map", "subject_name": ""}},
+    {{"start_ms": 3500, "end_ms": 7000, "prompt": "...", "motion": "static", "visual_type": "portrait", "subject_name": "Mamata Banerjee"}},
+    {{"start_ms": 7000, "end_ms": 10500, "prompt": "...", "motion": "pan_right", "visual_type": "headline", "subject_name": ""}},
     ...
   ]
 }}"""
@@ -73,7 +87,7 @@ Motion for each beat — one of:
         model=model,
         messages=[{"role": "user", "content": prompt}],
         temperature=0.85,
-        max_tokens=2500,
+        max_tokens=4000,
     )
     raw = response.choices[0].message.content.strip()
     raw = re.sub(r"^```(?:json)?\s*|\s*```$", "", raw, flags=re.MULTILINE).strip()
