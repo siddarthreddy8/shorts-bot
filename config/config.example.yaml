@@ -54,3 +54,7 @@ upload:
   default_tags:
     - "shorts"
     - "documentary"
+
+# ── Environment variables (set in .env, never commit) ─────────────────────────
+# OPENROUTER_API_KEY=<your key from openrouter.ai>
+# AI_MODEL=anthropic/claude-sonnet-4-6   # default; override to use a different model
