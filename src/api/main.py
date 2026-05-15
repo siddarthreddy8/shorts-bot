@@ -56,6 +56,11 @@ class ApproveBody(BaseModel):
     hook: str
     body: str
     cta: str
+    seo_title: str | None = None
+    seo_description: str | None = None
+    seo_hashtags: list[str] | None = None
+    seo_thumbnail_phrases: list[str] | None = None
+    seo_thumbnail_phrase: str | None = None
 
 
 @app.post("/api/videos/{video_id}/approve", status_code=202)
@@ -64,12 +69,99 @@ def approve(video_id: str, body: ApproveBody, background_tasks: BackgroundTasks)
     wc = len(f"{body.hook}\n\n{body.body}\n\n{body.cta}".split())
     with get_conn() as conn:
         conn.execute(
-            "UPDATE videos SET status='script_approved', script_word_count=?, "
-            "updated_at=datetime('now') WHERE video_id=?",
-            (wc, video_id),
+            """UPDATE videos SET
+               status='script_approved', script_word_count=?,
+               seo_title=?, seo_description=?,
+               seo_hashtags_json=?, seo_thumbnail_phrases_json=?,
+               seo_thumbnail_phrase=?,
+               updated_at=datetime('now')
+               WHERE video_id=?""",
+            (
+                wc,
+                body.seo_title,
+                body.seo_description,
+                json.dumps(body.seo_hashtags) if body.seo_hashtags is not None else None,
+                json.dumps(body.seo_thumbnail_phrases) if body.seo_thumbnail_phrases is not None else None,
+                body.seo_thumbnail_phrase,
+                video_id,
+            ),
         )
     background_tasks.add_task(run_pipeline, video_id)
     return {"status": "accepted"}
+
+
+@app.get("/api/videos/{video_id}/seo")
+def get_seo(video_id: str):
+    with get_conn() as conn:
+        row = conn.execute(
+            """SELECT seo_title, seo_description, seo_hashtags_json,
+                      seo_thumbnail_phrases_json, seo_thumbnail_phrase
+               FROM videos WHERE video_id=?""",
+            (video_id,),
+        ).fetchone()
+    if not row or not row["seo_title"]:
+        raise HTTPException(404, "No SEO data")
+    return {
+        "title": row["seo_title"],
+        "description": row["seo_description"],
+        "hashtags": json.loads(row["seo_hashtags_json"] or "[]"),
+        "thumbnail_phrases": json.loads(row["seo_thumbnail_phrases_json"] or "[]"),
+        "thumbnail_phrase": row["seo_thumbnail_phrase"],
+    }
+
+
+@app.post("/api/videos/{video_id}/seo/generate")
+def generate_seo(video_id: str):
+    p = _SCRIPTS_DIR / f"{video_id}_draft.json"
+    if not p.exists():
+        raise HTTPException(404, "No draft script")
+    draft = json.loads(p.read_text(encoding="utf-8"))
+    script_text = (
+        " ".join(draft.get("hooks", []))
+        + "\n\n"
+        + draft.get("body", "")
+        + "\n\n"
+        + draft.get("cta", "")
+    )
+
+    with get_conn() as conn:
+        row = conn.execute(
+            "SELECT source_title, target_language, styles_json FROM videos WHERE video_id=?",
+            (video_id,),
+        ).fetchone()
+    if not row:
+        raise HTTPException(404, "Video not found")
+
+    topic_hint = row["source_title"] or ""
+    language = row["target_language"] or "english"
+    styles = json.loads(row["styles_json"] or '["documentary"]')
+
+    from src.seo import generate_and_enrich
+    metadata = generate_and_enrich(script_text, topic_hint, styles, language)
+
+    with get_conn() as conn:
+        conn.execute(
+            """UPDATE videos SET
+               seo_title=?, seo_description=?,
+               seo_hashtags_json=?, seo_thumbnail_phrases_json=?,
+               updated_at=datetime('now')
+               WHERE video_id=?""",
+            (
+                metadata.title,
+                metadata.description,
+                json.dumps(metadata.hashtags),
+                json.dumps(metadata.thumbnail_phrases),
+                video_id,
+            ),
+        )
+
+    return {
+        "title": metadata.title,
+        "description": metadata.description,
+        "hashtags": metadata.hashtags,
+        "thumbnail_phrases": metadata.thumbnail_phrases,
+        "thumbnail_phrase": None,
+    }
 
 
 @app.get("/api/videos/{video_id}/status")
