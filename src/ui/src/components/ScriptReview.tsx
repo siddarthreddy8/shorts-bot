@@ -1,6 +1,7 @@
 import { useEffect, useState } from 'react'
-import { approveScript, fetchScript, fetchTranscript, regenerateScript } from '../lib/api'
-import type { DraftScript } from '../lib/types'
+import { approveScript, fetchScript, fetchSeo, fetchTranscript, generateSeo, regenerateScript } from '../lib/api'
+import type { DraftScript, SeoMetadata } from '../lib/types'
+import { SeoPanel } from './SeoPanel'
 
 const label: React.CSSProperties = {
   fontFamily: 'var(--font-mono)',
@@ -44,15 +45,42 @@ export function ScriptReview({
   const [transcriptOpen, setTranscriptOpen] = useState(false)
   const [transcript, setTranscript] = useState<string | null>(null)
   const [transcriptLoading, setTranscriptLoading] = useState(false)
+  const [seo, setSeo] = useState<SeoMetadata | null>(null)
+  const [seoLoading, setSeoLoading] = useState(false)
+  const [seoRegenerating, setSeoRegenerating] = useState(false)
+  const [seoFailed, setSeoFailed] = useState(false)
 
   useEffect(() => {
     setLoading(true)
-    fetchScript(videoId).then((d) => {
-      setDraft(d)
-      setBody(d.body)
-      setCta(d.cta)
-      setLoading(false)
-    }).catch(() => setLoading(false))
+    setSeo(null)
+    setSeoLoading(true)
+    setSeoFailed(false)
+
+    fetchScript(videoId)
+      .then((d) => {
+        setDraft(d)
+        setBody(d.body)
+        setCta(d.cta)
+        setLoading(false)
+      })
+      .catch(() => setLoading(false))
+
+    fetchSeo(videoId)
+      .then((data) => {
+        setSeo(data)
+        setSeoLoading(false)
+      })
+      .catch(() => {
+        generateSeo(videoId)
+          .then((data) => {
+            setSeo(data)
+            setSeoLoading(false)
+          })
+          .catch(() => {
+            setSeoLoading(false)
+            setSeoFailed(true)
+          })
+      })
   }, [videoId])
 
   if (loading || !draft) {
@@ -69,7 +97,7 @@ export function ScriptReview({
   const handleApprove = async () => {
     setSubmitting(true)
     try {
-      await approveScript(videoId, draft.hooks[hookIdx], body, cta)
+      await approveScript(videoId, draft.hooks[hookIdx], body, cta, seo ?? undefined)
       onApproved()
     } catch {
       setSubmitting(false)
@@ -83,6 +111,19 @@ export function ScriptReview({
       onRefresh()
     } catch {
       setRegenerating(false)
+    }
+  }
+
+  const handleRegenerateSeo = async () => {
+    setSeoRegenerating(true)
+    setSeoFailed(false)
+    try {
+      const data = await generateSeo(videoId)
+      setSeo(data)
+    } catch {
+      setSeoFailed(true)
+    } finally {
+      setSeoRegenerating(false)
     }
   }
 
@@ -169,6 +210,44 @@ export function ScriptReview({
           style={inputBase}
         />
       </div>
+
+      {/* SEO panel */}
+      {seoLoading && (
+        <p style={{ fontFamily: 'var(--font-mono)', fontSize: '0.65rem', color: 'var(--c-muted)' }}>
+          Generating SEO…
+        </p>
+      )}
+      {seoFailed && !seoLoading && (
+        <div style={{ borderTop: '1px solid var(--c-border-sub)', paddingTop: 14 }}>
+          <span style={{ fontFamily: 'var(--font-mono)', fontSize: '0.6rem', color: 'var(--c-muted)', letterSpacing: '0.12em', textTransform: 'uppercase', display: 'block', marginBottom: 8 }}>
+            SEO Metadata
+          </span>
+          <button
+            onClick={handleRegenerateSeo}
+            style={{
+              background: 'none',
+              border: '1px solid var(--c-border)',
+              borderRadius: 4,
+              color: 'var(--c-text2)',
+              fontFamily: 'var(--font-mono)',
+              fontSize: '0.6rem',
+              letterSpacing: '0.06em',
+              padding: '6px 12px',
+              cursor: 'pointer',
+            }}
+          >
+            Generate SEO
+          </button>
+        </div>
+      )}
+      {seo && !seoLoading && (
+        <SeoPanel
+          seo={seo}
+          onChange={setSeo}
+          onRegenerate={handleRegenerateSeo}
+          regenerating={seoRegenerating}
+        />
+      )}
 
       {/* Footer */}
       <div style={{ display: 'flex', alignItems: 'center', gap: 10, flexWrap: 'wrap' }}>
