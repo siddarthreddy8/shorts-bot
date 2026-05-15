@@ -1,4 +1,4 @@
-import type { Channel, Costs, DraftScript, PipelineEvent, Stats, Video, VideoStatus } from './types'
+import type { Channel, Costs, DraftScript, PipelineEvent, SeoMetadata, Stats, Video, VideoStatus } from './types'
 
 const BASE = '/api'
 
@@ -37,8 +37,27 @@ export async function fetchScript(videoId: string): Promise<DraftScript> {
   return r.json()
 }
 
-export async function approveScript(videoId: string, hook: string, body: string, cta: string): Promise<void> {
-  const r = await post(`/videos/${videoId}/approve`, { hook, body, cta })
+export async function approveScript(
+  videoId: string,
+  hook: string,
+  body: string,
+  cta: string,
+  seo?: SeoMetadata,
+): Promise<void> {
+  const r = await post(`/videos/${videoId}/approve`, {
+    hook,
+    body,
+    cta,
+    ...(seo
+      ? {
+          seo_title: seo.title,
+          seo_description: seo.description,
+          seo_hashtags: seo.hashtags,
+          seo_thumbnail_phrases: seo.thumbnail_phrases,
+          seo_thumbnail_phrase: seo.thumbnail_phrase,
+        }
+      : {}),
+  })
   if (!r.ok) throw new Error('Approve failed')
 }
 
@@ -82,6 +101,21 @@ export async function fetchTranscript(videoId: string): Promise<string> {
   if (!r.ok) throw new Error('No transcript')
   const data = await r.json()
   return data.text
+}
+
+export async function fetchSeo(videoId: string): Promise<SeoMetadata> {
+  const r = await fetch(`${BASE}/videos/${videoId}/seo`)
+  if (!r.ok) throw new Error('No SEO data')
+  return r.json()
+}
+
+export async function generateSeo(videoId: string): Promise<SeoMetadata> {
+  const r = await post(`/videos/${videoId}/seo/generate`)
+  if (!r.ok) {
+    const text = await r.text().catch(() => '')
+    throw new Error(`SEO generation failed: ${text.slice(0, 120)}`)
+  }
+  return r.json()
 }
 
 // ── Dashboard data ────────────────────────────────────────────────────────────

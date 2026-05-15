@@ -1,6 +1,6 @@
 export type PipelineStatus =
   | 'discovered' | 'transcribed' | 'script_drafted'
-  | 'script_approved' | 'video_rendered' | 'uploaded'
+  | 'script_approved' | 'seo_generated' | 'video_rendered' | 'uploaded'
   | 'failed' | 'skipped'
 
 export type StepState = 'pending' | 'running' | 'done' | 'failed'
@@ -35,6 +35,14 @@ export interface DraftScript {
   word_count: number
   language: string
   styles: string[]
+}
+
+export interface SeoMetadata {
+  title: string
+  description: string
+  hashtags: string[]
+  thumbnail_phrases: string[]
+  thumbnail_phrase: string | null
 }
 
 export interface Stats {
