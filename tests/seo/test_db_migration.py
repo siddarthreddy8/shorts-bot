@@ -1,7 +1,5 @@
 import sqlite3
-import tempfile
 from pathlib import Path
-from unittest.mock import patch
 
 
 def _fresh_db(schema_sql: str) -> sqlite3.Connection:
@@ -46,7 +44,7 @@ def test_migration_adds_columns_to_existing_db():
     for col, col_type in NEW_COLS:
         try:
             conn.execute(f"ALTER TABLE videos ADD COLUMN {col} {col_type}")
-        except Exception:
+        except sqlite3.OperationalError:
             pass
     conn.commit()
 
