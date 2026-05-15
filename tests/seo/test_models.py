@@ -37,3 +37,35 @@ def test_seo_metadata_stores_all_fields():
     assert m.niche == "history"
     assert len(m.hashtags) == 2
     assert len(m.thumbnail_phrases) == 3
+
+
+from unittest.mock import patch, MagicMock
+from src.seo import generate_and_enrich
+
+
+def test_generate_and_enrich_chains_both_steps():
+    from src.seo.models import SeoMetadata
+
+    raw = SeoMetadata(
+        title="Raw Title",
+        description="Raw desc.",
+        hashtags=["#raw"],
+        thumbnail_phrases=["p1", "p2", "p3"],
+        niche="tech",
+    )
+    enriched = SeoMetadata(
+        title="Raw Title",
+        description="Raw desc.",
+        hashtags=["#raw", "#injected"],
+        thumbnail_phrases=["p1", "p2", "p3"],
+        niche="tech",
+    )
+
+    # Patch through the module objects — matches how __init__.py calls them
+    with patch("src.seo.analyzer.generate", return_value=raw) as mock_gen, \
+         patch("src.seo.trends.enrich", return_value=enriched) as mock_enrich:
+        result = generate_and_enrich("script", "topic", ["comedy"], "english")
+
+    mock_gen.assert_called_once_with("script", "topic", ["comedy"], "english")
+    mock_enrich.assert_called_once_with(raw, "topic", "english")
+    assert "#injected" in result.hashtags
