@@ -117,16 +117,36 @@ def _get_last_seen(channel_id: str) -> str | None:
     return row["last_seen_video_id"] if row else None
 
 
-def _update_last_seen(channel_id: str, video_id: str) -> None:
+def _fetch_channel_name(client, channel_id: str) -> str | None:
+    try:
+        resp = client.channels().list(part="snippet", id=channel_id).execute()
+        items = resp.get("items", [])
+        if items:
+            return items[0]["snippet"]["title"]
+    except Exception:
+        pass
+    return None
+
+
+def _update_last_seen(channel_id: str, video_id: str, channel_name: str = "") -> None:
     with get_conn() as conn:
         conn.execute(
-            """INSERT INTO channel_state (channel_id, last_seen_video_id, last_polled_at)
-               VALUES (?, ?, datetime('now'))
+            """INSERT INTO channel_state (channel_id, last_seen_video_id, last_polled_at, name)
+               VALUES (?, ?, datetime('now'), ?)
                ON CONFLICT(channel_id) DO UPDATE SET
                  last_seen_video_id = excluded.last_seen_video_id,
-                 last_polled_at = excluded.last_polled_at""",
-            (channel_id, video_id),
+                 last_polled_at = excluded.last_polled_at,
+                 name = COALESCE(NULLIF(excluded.name, ''), channel_state.name)""",
+            (channel_id, video_id, channel_name),
         )
+
+
+def _is_channel_disabled(channel_id: str) -> bool:
+    with get_conn() as conn:
+        row = conn.execute(
+            "SELECT enabled FROM channel_state WHERE channel_id=?", (channel_id,)
+        ).fetchone()
+    return row is not None and not row["enabled"]
 
 
 def _save_video(meta: VideoMeta) -> None:
@@ -171,7 +191,14 @@ def poll_channels() -> list[VideoMeta]:
             elif resolved:
                 channel_id = resolved
 
-        logger.info(f"Polling channel: {channel.name} ({channel_id})")
+        if _is_channel_disabled(channel_id):
+            logger.info(f"Channel {channel_id} disabled in DB — skipping")
+            continue
+
+        # Resolve display name: config name → YouTube API fallback
+        display_name = channel.name or _fetch_channel_name(client, channel_id) or channel_id
+
+        logger.info(f"Polling channel: {display_name} ({channel_id})")
         try:
             videos = _fetch_recent_videos(client, channel_id)
         except HttpError as e:
@@ -180,11 +207,11 @@ def poll_channels() -> list[VideoMeta]:
             continue
 
         if not videos:
-            logger.info(f"No videos found on {channel.name}")
+            logger.info(f"No videos found on {display_name}")
             continue
 
         # Record the newest video ID so future polls skip already-seen ones fast
-        _update_last_seen(channel_id, videos[0].video_id)
+        _update_last_seen(channel_id, videos[0].video_id, display_name)
 
         for meta in videos:
             if channel.shorts_only:

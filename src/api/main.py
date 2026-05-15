@@ -309,8 +309,32 @@ def get_stats():
 @app.get("/api/channels")
 def get_channels():
     with get_conn() as conn:
-        rows = conn.execute("SELECT * FROM channel_state ORDER BY last_polled_at DESC").fetchall()
+        rows = conn.execute(
+            """SELECT cs.*,
+                      COALESCE(cs.name,
+                        (SELECT source_channel_name FROM videos
+                         WHERE source_channel_id = cs.channel_id
+                           AND source_channel_name IS NOT NULL LIMIT 1)
+                      ) AS name
+               FROM channel_state cs
+               ORDER BY cs.last_polled_at DESC"""
+        ).fetchall()
     return [dict(r) for r in rows]
+
+
+@app.post("/api/channels/{channel_id}/toggle", status_code=200)
+def toggle_channel(channel_id: str):
+    with get_conn() as conn:
+        row = conn.execute(
+            "SELECT enabled FROM channel_state WHERE channel_id=?", (channel_id,)
+        ).fetchone()
+        if not row:
+            raise HTTPException(404, "Channel not found")
+        new_val = 0 if row["enabled"] else 1
+        conn.execute(
+            "UPDATE channel_state SET enabled=? WHERE channel_id=?", (new_val, channel_id)
+        )
+    return {"enabled": bool(new_val)}
 
 
 @app.get("/api/events")

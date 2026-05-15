@@ -20,6 +20,11 @@ _NEW_COLUMNS: list[tuple[str, str]] = [
     ("thumbnail_path", "TEXT"),
 ]
 
+_CHANNEL_STATE_COLUMNS: list[tuple[str, str]] = [
+    ("name", "TEXT"),
+    ("enabled", "INTEGER NOT NULL DEFAULT 1"),
+]
+
 
 def _apply_migrations(conn: sqlite3.Connection) -> None:
     for col, col_type in _NEW_COLUMNS:
@@ -27,6 +32,12 @@ def _apply_migrations(conn: sqlite3.Connection) -> None:
             conn.execute(f"ALTER TABLE videos ADD COLUMN {col} {col_type}")
         except sqlite3.OperationalError as exc:
             if "duplicate column name" not in str(exc):
+                raise
+    for col, col_type in _CHANNEL_STATE_COLUMNS:
+        try:
+            conn.execute(f"ALTER TABLE channel_state ADD COLUMN {col} {col_type}")
+        except sqlite3.OperationalError as exc:
+            if "duplicate column name" not in str(exc) and "no such table" not in str(exc):
                 raise
 
 

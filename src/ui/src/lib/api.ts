@@ -161,3 +161,9 @@ export async function ingestUrl(url: string, language = 'english', styles = ['do
 export async function generateScript(videoId: string, language: string, styles: string[]): Promise<void> {
   await apiPost(`/videos/${videoId}/generate-script`, { language, styles })
 }
+
+export async function toggleChannel(channelId: string): Promise<{ enabled: boolean }> {
+  const r = await post(`/channels/${channelId}/toggle`)
+  if (!r.ok) throw new Error('Toggle failed')
+  return r.json()
+}

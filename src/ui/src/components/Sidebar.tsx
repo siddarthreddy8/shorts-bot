@@ -1,9 +1,9 @@
 import { useState } from 'react'
-import { generateScript, ingestUrl, publishVideo, triggerMonitor, triggerRun } from '../lib/api'
+import { generateScript, ingestUrl, publishVideo, toggleChannel, triggerMonitor, triggerRun } from '../lib/api'
+import type { Channel, Video } from '../lib/types'
 import { useChannels } from '../hooks/useChannels'
 import { useCosts } from '../hooks/useCosts'
 import { useStats } from '../hooks/useStats'
-import type { Video } from '../lib/types'
 
 const USD_TO_INR = 85.5
 
@@ -77,12 +77,29 @@ function timeAgo(iso: string | null): string {
 
 export function Sidebar({ onClose, videos = [], onRefresh }: { onClose?: () => void; videos?: Video[]; onRefresh?: () => void }) {
   const stats = useStats()
-  const channels = useChannels()
+  const fetchedChannels = useChannels()
+  const [localChannels, setLocalChannels] = useState<Channel[] | null>(null)
+  const channels = localChannels ?? fetchedChannels
   const costs = useCosts()
   const [url, setUrl] = useState('')
   const [urlLoading, setUrlLoading] = useState(false)
   const [actionLoading, setActionLoading] = useState<string | null>(null)
   const [bulkProgress, setBulkProgress] = useState<{ done: number; total: number } | null>(null)
+  const [togglingChannel, setTogglingChannel] = useState<string | null>(null)
+
+  const handleToggleChannel = async (channelId: string) => {
+    setTogglingChannel(channelId)
+    try {
+      const result = await toggleChannel(channelId)
+      setLocalChannels((prev) =>
+        (prev ?? fetchedChannels).map((ch) =>
+          ch.channel_id === channelId ? { ...ch, enabled: result.enabled ? 1 : 0 } : ch
+        )
+      )
+    } finally {
+      setTogglingChannel(null)
+    }
+  }
 
   const handleIngest = async () => {
     if (!url.trim()) return
@@ -369,26 +386,57 @@ export function Sidebar({ onClose, videos = [], onRefresh }: { onClose?: () => v
           </p>
         )}
         {channels.map((ch) => {
+          const enabled = ch.enabled !== 0
           const fresh = ch.last_polled_at
             ? (Date.now() - new Date(ch.last_polled_at + 'Z').getTime()) < 6 * 3600 * 1000
             : false
+          const isToggling = togglingChannel === ch.channel_id
           return (
-            <div key={ch.channel_id} style={{ marginBottom: 9 }}>
-              <div style={{ display: 'flex', alignItems: 'center', gap: 5, marginBottom: 2 }}>
+            <div key={ch.channel_id} style={{ marginBottom: 10, opacity: enabled ? 1 : 0.5 }}>
+              <div style={{ display: 'flex', alignItems: 'center', gap: 6, marginBottom: 2 }}>
                 <span style={{
                   width: 5,
                   height: 5,
                   borderRadius: '50%',
-                  background: fresh ? 'var(--c-green)' : 'var(--c-muted2)',
+                  background: enabled && fresh ? 'var(--c-green)' : 'var(--c-muted2)',
                   flexShrink: 0,
-                  boxShadow: fresh ? '0 0 5px rgba(22,163,74,0.4)' : 'none',
+                  boxShadow: enabled && fresh ? '0 0 5px rgba(22,163,74,0.4)' : 'none',
                 }} />
-                <span style={{ fontFamily: 'var(--font-mono)', fontSize: '0.65rem', color: 'var(--c-text)', fontWeight: 500 }}>
+                <span style={{ fontFamily: 'var(--font-mono)', fontSize: '0.65rem', color: 'var(--c-text)', fontWeight: 500, flex: 1, overflow: 'hidden', textOverflow: 'ellipsis', whiteSpace: 'nowrap' }}>
                   {ch.name ?? ch.channel_id.slice(0, 20)}
                 </span>
+                <button
+                  onClick={() => handleToggleChannel(ch.channel_id)}
+                  disabled={isToggling}
+                  title={enabled ? 'Disable channel' : 'Enable channel'}
+                  style={{
+                    flexShrink: 0,
+                    width: 32,
+                    height: 18,
+                    borderRadius: 9,
+                    border: 'none',
+                    cursor: isToggling ? 'not-allowed' : 'pointer',
+                    background: enabled ? 'var(--c-green)' : 'var(--c-muted2)',
+                    position: 'relative',
+                    transition: 'background 0.2s',
+                    padding: 0,
+                  }}
+                >
+                  <span style={{
+                    position: 'absolute',
+                    top: 2,
+                    left: enabled ? 16 : 2,
+                    width: 14,
+                    height: 14,
+                    borderRadius: '50%',
+                    background: '#fff',
+                    transition: 'left 0.2s',
+                    boxShadow: '0 1px 3px rgba(0,0,0,0.25)',
+                  }} />
+                </button>
               </div>
-              <div style={{ fontFamily: 'var(--font-mono)', fontSize: '0.58rem', color: 'var(--c-muted)', paddingLeft: 10 }}>
-                Polled {timeAgo(ch.last_polled_at)}
+              <div style={{ fontFamily: 'var(--font-mono)', fontSize: '0.58rem', color: 'var(--c-muted)', paddingLeft: 11 }}>
+                {enabled ? `Polled ${timeAgo(ch.last_polled_at)}` : 'Disabled'}
               </div>
             </div>
           )

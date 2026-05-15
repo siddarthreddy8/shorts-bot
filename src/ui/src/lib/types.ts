@@ -60,6 +60,7 @@ export interface Channel {
   name: string | null
   last_polled_at: string | null
   last_seen_video_id: string | null
+  enabled: number
 }
 
 export interface Costs {
