@@ -13,6 +13,7 @@ from pydantic import BaseModel
 from src.api.pipeline import get_progress, run_pipeline, run_upload
 from src.db.database import get_conn
 from src.script.rewriter import save_approved
+from src.seo import generate_and_enrich
 from src.utils.config import project_root
 
 app = FastAPI()
@@ -136,7 +137,6 @@ def generate_seo(video_id: str):
     language = row["target_language"] or "english"
     styles = json.loads(row["styles_json"] or '["documentary"]')
 
-    from src.seo import generate_and_enrich
     metadata = generate_and_enrich(script_text, topic_hint, styles, language)
 
     with get_conn() as conn:

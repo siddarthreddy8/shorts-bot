@@ -102,7 +102,7 @@ def test_generate_seo_returns_metadata(db, tmp_path):
 
     with (
         patch("src.api.main._SCRIPTS_DIR", tmp_path),
-        patch("src.seo.generate_and_enrich", return_value=fake_meta),
+        patch("src.api.main.generate_and_enrich", return_value=fake_meta),
         _patch_conn(db),
     ):
         r = client.post("/api/videos/v1/seo/generate")
@@ -129,7 +129,7 @@ def test_generate_seo_saves_to_db(db, tmp_path):
 
     with (
         patch("src.api.main._SCRIPTS_DIR", tmp_path),
-        patch("src.seo.generate_and_enrich", return_value=fake_meta),
+        patch("src.api.main.generate_and_enrich", return_value=fake_meta),
         _patch_conn(db),
     ):
         client.post("/api/videos/v1/seo/generate")
