@@ -24,6 +24,13 @@ CREATE TABLE IF NOT EXISTS videos (
     script_edit_distance  REAL,                       -- % difference between draft and approved
     pipeline_duration_sec INTEGER,
     cost_usd              REAL,
+    -- SEO metadata
+    seo_title                    TEXT,
+    seo_description              TEXT,
+    seo_hashtags_json            TEXT,           -- JSON array
+    seo_thumbnail_phrases_json   TEXT,           -- JSON array, 3 options
+    seo_thumbnail_phrase         TEXT,           -- user-selected phrase
+    thumbnail_path               TEXT,           -- rendered PNG path
     updated_at            TEXT NOT NULL DEFAULT (datetime('now'))
 );
 
