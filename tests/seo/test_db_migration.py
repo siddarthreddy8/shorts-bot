@@ -21,6 +21,8 @@ def test_new_columns_exist_in_fresh_db():
 
 
 def test_migration_adds_columns_to_existing_db():
+    from src.db.database import _apply_migrations
+
     # Simulate a DB created before the new columns existed.
     conn = sqlite3.connect(":memory:")
     conn.execute("""
@@ -32,20 +34,7 @@ def test_migration_adds_columns_to_existing_db():
     """)
     conn.commit()
 
-    # Run only the migration logic (not the full schema which would fail on table exists).
-    NEW_COLS = [
-        ("seo_title", "TEXT"),
-        ("seo_description", "TEXT"),
-        ("seo_hashtags_json", "TEXT"),
-        ("seo_thumbnail_phrases_json", "TEXT"),
-        ("seo_thumbnail_phrase", "TEXT"),
-        ("thumbnail_path", "TEXT"),
-    ]
-    for col, col_type in NEW_COLS:
-        try:
-            conn.execute(f"ALTER TABLE videos ADD COLUMN {col} {col_type}")
-        except sqlite3.OperationalError:
-            pass
+    _apply_migrations(conn)
     conn.commit()
 
     cursor = conn.execute("PRAGMA table_info(videos)")

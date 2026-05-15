@@ -25,8 +25,9 @@ def _apply_migrations(conn: sqlite3.Connection) -> None:
     for col, col_type in _NEW_COLUMNS:
         try:
             conn.execute(f"ALTER TABLE videos ADD COLUMN {col} {col_type}")
-        except sqlite3.OperationalError:
-            pass  # column already exists
+        except sqlite3.OperationalError as exc:
+            if "duplicate column name" not in str(exc):
+                raise
 
 
 def init_db() -> None:

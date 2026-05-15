@@ -15,9 +15,12 @@ _SYSTEM = (
     "traceable to the script's specific topic, emotion, or hook."
 )
 
-_USER_TEMPLATE = """\
+_PROMPT_PREFIX = """\
 ## Script
-{script}
+"""
+
+_PROMPT_SUFFIX = """\
+
 
 ## Context
 - Language: {language}
@@ -74,11 +77,14 @@ def generate(
 ) -> SeoMetadata:
     client = _make_client()
     model = env("AI_MODEL", default="anthropic/claude-sonnet-4-6")
-    user_msg = _USER_TEMPLATE.format(
-        script=script,
-        language=language,
-        styles=", ".join(styles),
-        topic_hint=topic_hint,
+    user_msg = (
+        _PROMPT_PREFIX
+        + script
+        + _PROMPT_SUFFIX.format(
+            language=language,
+            styles=", ".join(styles),
+            topic_hint=topic_hint,
+        )
     )
     messages: list[dict] = [
         {"role": "system", "content": _SYSTEM},
