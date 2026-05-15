@@ -1,0 +1,742 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Shorts Bot — Design Preview</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&family=JetBrains+Mono:wght@400;500;700&display=swap" rel="stylesheet">
+<style>
+  :root {
+    --bg: #080c18;
+    --sidebar-bg: #05070f;
+    --card: #0f1420;
+    --card-hover: #121828;
+    --surface: #141928;
+    --border: #1e2a45;
+    --border-subtle: #161f35;
+    --text: #e8eaf0;
+    --muted: #4a5578;
+    --muted2: #2e3a58;
+    --gold: #ffd93d;
+    --gold-dim: rgba(255,217,61,0.12);
+    --gold-glow: rgba(255,217,61,0.2);
+    --blue: #3b82f6;
+    --blue-dim: rgba(59,130,246,0.12);
+    --green: #22c55e;
+    --green-dim: rgba(34,197,94,0.12);
+    --red: #ef4444;
+    --red-dim: rgba(239,68,68,0.12);
+    --font: 'Inter', sans-serif;
+    --mono: 'JetBrains Mono', monospace;
+  }
+  * { box-sizing: border-box; margin: 0; padding: 0; }
+  body { background: var(--bg); color: var(--text); font-family: var(--font); font-size: 13px; -webkit-font-smoothing: antialiased; overflow: hidden; height: 100vh; }
+
+  .layout {
+    display: flex;
+    height: 100vh;
+    overflow: hidden;
+  }
+
+  /* ── SIDEBAR ── */
+  .sidebar {
+    width: 248px;
+    flex-shrink: 0;
+    background: var(--sidebar-bg);
+    border-right: 1px solid var(--border-subtle);
+    border-left: 3px solid var(--gold);
+    display: flex;
+    flex-direction: column;
+    overflow-y: auto;
+    overflow-x: hidden;
+    box-shadow: 4px 0 24px rgba(0,0,0,0.4), inset -1px 0 0 var(--border-subtle);
+  }
+  .sidebar::-webkit-scrollbar { width: 4px; }
+  .sidebar::-webkit-scrollbar-track { background: transparent; }
+  .sidebar::-webkit-scrollbar-thumb { background: var(--border); border-radius: 2px; }
+
+  .sidebar-brand {
+    padding: 20px 18px 16px;
+    border-bottom: 1px solid var(--border-subtle);
+  }
+  .brand-name {
+    font-family: var(--mono);
+    font-size: 13px;
+    font-weight: 700;
+    letter-spacing: 0.22em;
+    color: var(--gold);
+    text-shadow: 0 0 20px rgba(255,217,61,0.3);
+  }
+  .brand-sub {
+    font-family: var(--mono);
+    font-size: 9px;
+    color: var(--muted);
+    letter-spacing: 0.14em;
+    margin-top: 3px;
+  }
+
+  .sidebar-section {
+    padding: 14px 18px;
+    border-bottom: 1px solid var(--border-subtle);
+  }
+  .section-label {
+    font-family: var(--mono);
+    font-size: 9px;
+    color: var(--muted);
+    letter-spacing: 0.15em;
+    text-transform: uppercase;
+    margin-bottom: 10px;
+  }
+
+  /* Metrics */
+  .metrics-grid {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 6px;
+  }
+  .metric-pill {
+    background: var(--surface);
+    border: 1px solid var(--border-subtle);
+    border-radius: 4px;
+    padding: 8px 10px;
+    display: flex;
+    flex-direction: column;
+    gap: 2px;
+  }
+  .metric-pill.gold { border-color: rgba(255,217,61,0.2); background: rgba(255,217,61,0.04); }
+  .metric-pill.blue { border-color: rgba(59,130,246,0.2); background: rgba(59,130,246,0.04); }
+  .metric-pill.green { border-color: rgba(34,197,94,0.2); background: rgba(34,197,94,0.04); }
+  .metric-pill.red { border-color: rgba(239,68,68,0.2); background: rgba(239,68,68,0.04); }
+  .metric-num { font-family: var(--mono); font-size: 20px; font-weight: 700; line-height: 1; }
+  .metric-num.gold { color: var(--gold); text-shadow: 0 0 12px rgba(255,217,61,0.4); }
+  .metric-num.blue { color: var(--blue); }
+  .metric-num.green { color: var(--green); }
+  .metric-num.red { color: var(--red); }
+  .metric-label { font-family: var(--mono); font-size: 8.5px; color: var(--muted); letter-spacing: 0.1em; }
+  .metric-pill.total .metric-num { color: var(--text); }
+
+  /* Pipeline stages */
+  .stage-list { display: flex; flex-direction: column; gap: 4px; }
+  .stage-row {
+    display: flex;
+    align-items: center;
+    gap: 6px;
+    padding: 5px 8px;
+    border-radius: 4px;
+    border: 1px solid transparent;
+    transition: all 0.15s;
+  }
+  .stage-row.active { background: var(--gold-dim); border-color: rgba(255,217,61,0.2); }
+  .stage-dot { width: 5px; height: 5px; border-radius: 50%; background: var(--muted2); flex-shrink: 0; }
+  .stage-dot.gold { background: var(--gold); box-shadow: 0 0 6px rgba(255,217,61,0.5); }
+  .stage-name { font-family: var(--mono); font-size: 9.5px; color: var(--muted); flex: 1; }
+  .stage-name.active { color: var(--text); }
+  .stage-count { font-family: var(--mono); font-size: 10px; font-weight: 600; color: var(--gold); }
+  .stage-count.dim { color: var(--muted2); font-weight: 400; }
+  .stage-btn {
+    font-family: var(--mono);
+    font-size: 8px;
+    background: var(--surface);
+    border: 1px solid var(--border);
+    color: var(--muted);
+    padding: 2px 6px;
+    border-radius: 2px;
+    cursor: pointer;
+    letter-spacing: 0.06em;
+    white-space: nowrap;
+  }
+
+  /* Action buttons */
+  .action-btns { display: flex; flex-direction: column; gap: 6px; }
+  .btn-primary {
+    background: var(--gold);
+    color: #000;
+    border: none;
+    padding: 9px 14px;
+    font-family: var(--mono);
+    font-size: 10px;
+    font-weight: 700;
+    letter-spacing: 0.12em;
+    border-radius: 3px;
+    cursor: pointer;
+    transition: all 0.15s;
+    box-shadow: 0 2px 12px rgba(255,217,61,0.25);
+  }
+  .btn-secondary {
+    background: transparent;
+    color: var(--text);
+    border: 1px solid var(--border);
+    padding: 8px 14px;
+    font-family: var(--mono);
+    font-size: 10px;
+    letter-spacing: 0.1em;
+    border-radius: 3px;
+    cursor: pointer;
+    transition: all 0.15s;
+  }
+
+  /* URL input */
+  .url-form { display: flex; gap: 6px; }
+  .url-input {
+    flex: 1;
+    background: var(--surface);
+    border: 1px solid var(--border);
+    border-radius: 3px;
+    color: var(--text);
+    font-family: var(--mono);
+    font-size: 9.5px;
+    padding: 7px 10px;
+    outline: none;
+  }
+  .url-submit {
+    background: var(--surface);
+    border: 1px solid var(--border);
+    color: var(--gold);
+    padding: 7px 10px;
+    border-radius: 3px;
+    font-family: var(--mono);
+    font-size: 10px;
+    cursor: pointer;
+  }
+
+  /* Channel health */
+  .channel-item { margin-bottom: 8px; }
+  .channel-name { font-family: var(--mono); font-size: 10px; color: var(--text); margin-bottom: 2px; }
+  .channel-meta { font-family: var(--mono); font-size: 8.5px; color: var(--muted); }
+  .channel-status { display: inline-block; width: 5px; height: 5px; border-radius: 50%; background: var(--green); margin-right: 5px; vertical-align: middle; box-shadow: 0 0 5px rgba(34,197,94,0.5); }
+
+  /* Cost */
+  .cost-row { display: flex; justify-content: space-between; align-items: center; margin-bottom: 4px; }
+  .cost-label { font-family: var(--mono); font-size: 9px; color: var(--muted); }
+  .cost-val { font-family: var(--mono); font-size: 10px; color: var(--text); }
+  .cost-total { border-top: 1px solid var(--border-subtle); margin-top: 6px; padding-top: 6px; }
+  .cost-total .cost-val { color: var(--gold); font-weight: 600; }
+
+  /* Style bars */
+  .style-bar-row { margin-bottom: 5px; }
+  .style-bar-label { font-family: var(--mono); font-size: 8.5px; color: var(--muted); display: flex; justify-content: space-between; margin-bottom: 3px; }
+  .style-bar-track { background: var(--surface); border-radius: 2px; height: 3px; overflow: hidden; }
+  .style-bar-fill { height: 100%; border-radius: 2px; background: linear-gradient(90deg, var(--gold), rgba(255,217,61,0.4)); }
+
+  /* ── MAIN PANEL ── */
+  .main-panel {
+    flex: 1;
+    display: flex;
+    flex-direction: column;
+    overflow: hidden;
+    background: var(--bg);
+  }
+  .queue-header {
+    padding: 18px 24px 14px;
+    border-bottom: 1px solid var(--border-subtle);
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    flex-shrink: 0;
+  }
+  .queue-title {
+    font-family: var(--mono);
+    font-size: 11px;
+    color: var(--gold);
+    letter-spacing: 0.1em;
+    display: flex;
+    align-items: center;
+    gap: 8px;
+  }
+  .queue-dot {
+    width: 6px; height: 6px; border-radius: 50%;
+    background: var(--gold);
+    box-shadow: 0 0 8px rgba(255,217,61,0.6);
+    animation: pulse-dot 2s ease-in-out infinite;
+  }
+  @keyframes pulse-dot { 0%,100%{opacity:1;transform:scale(1)} 50%{opacity:0.5;transform:scale(0.7)} }
+
+  .queue-body {
+    flex: 1;
+    overflow-y: auto;
+    padding: 16px 24px;
+    display: flex;
+    flex-direction: column;
+    gap: 8px;
+  }
+  .queue-body::-webkit-scrollbar { width: 5px; }
+  .queue-body::-webkit-scrollbar-track { background: transparent; }
+  .queue-body::-webkit-scrollbar-thumb { background: var(--border); border-radius: 3px; }
+
+  /* ── VIDEO CARDS ── */
+  .video-card {
+    background: linear-gradient(180deg, #111623 0%, #0c1019 100%);
+    border: 1px solid var(--border);
+    border-radius: 6px;
+    padding: 14px 18px;
+    transition: border-color 0.2s, box-shadow 0.2s;
+    cursor: default;
+  }
+  .video-card:hover { border-color: #2a3a5e; box-shadow: 0 2px 16px rgba(0,0,0,0.3); }
+  .video-card.needs-review { cursor: pointer; }
+  .video-card.needs-review:hover { border-color: rgba(255,217,61,0.3); box-shadow: 0 0 24px rgba(255,217,61,0.06); }
+  .video-card.expanded { border-color: var(--gold); box-shadow: 0 0 32px rgba(255,217,61,0.08); }
+
+  .card-header { display: flex; justify-content: space-between; align-items: flex-start; gap: 12px; }
+  .card-title-block { flex: 1; min-width: 0; }
+  .card-title {
+    font-size: 13.5px;
+    font-weight: 500;
+    color: var(--text);
+    white-space: nowrap;
+    overflow: hidden;
+    text-overflow: ellipsis;
+    letter-spacing: -0.01em;
+    margin-bottom: 4px;
+  }
+  .card-meta {
+    font-family: var(--mono);
+    font-size: 10px;
+    color: var(--muted);
+  }
+  .card-right { display: flex; align-items: center; gap: 10px; flex-shrink: 0; }
+  .chevron { color: var(--muted); font-size: 10px; transition: transform 0.2s; }
+  .chevron.open { transform: rotate(180deg); color: var(--gold); }
+
+  /* Status badges */
+  .badge {
+    font-family: var(--mono);
+    font-size: 9px;
+    font-weight: 500;
+    letter-spacing: 0.1em;
+    padding: 3px 8px;
+    border-radius: 2px;
+    white-space: nowrap;
+  }
+  .badge.review { color: var(--gold); border: 1px solid rgba(255,217,61,0.3); background: rgba(255,217,61,0.06); }
+  .badge.running { color: var(--blue); border: 1px solid rgba(59,130,246,0.3); background: rgba(59,130,246,0.06); }
+  .badge.uploaded { color: var(--green); border: 1px solid rgba(34,197,94,0.3); background: rgba(34,197,94,0.06); }
+  .badge.failed { color: var(--red); border: 1px solid rgba(239,68,68,0.3); background: rgba(239,68,68,0.06); }
+  .badge.dim { color: var(--muted); border: 1px solid var(--border); background: transparent; }
+
+  /* Step tracker */
+  .step-tracker {
+    display: flex;
+    align-items: center;
+    margin-top: 12px;
+    gap: 0;
+  }
+  .step-item { display: flex; align-items: center; }
+  .step-pill {
+    font-family: var(--mono);
+    font-size: 9.5px;
+    font-weight: 500;
+    letter-spacing: 0.06em;
+    padding: 4px 12px;
+    border-radius: 20px;
+    border: 1px solid transparent;
+    white-space: nowrap;
+  }
+  .step-pill.done { background: rgba(255,217,61,0.15); color: var(--gold); border-color: rgba(255,217,61,0.3); }
+  .step-pill.running { background: transparent; color: var(--gold); border-color: var(--gold); animation: step-pulse 1.5s ease-in-out infinite; }
+  .step-pill.pending { background: transparent; color: var(--muted); border-color: transparent; }
+  .step-pill.failed { background: rgba(239,68,68,0.1); color: var(--red); border-color: rgba(239,68,68,0.3); }
+  @keyframes step-pulse { 0%,100%{opacity:1;box-shadow:0 0 8px rgba(255,217,61,0.2)} 50%{opacity:0.6;box-shadow:none} }
+  .step-connector { color: var(--muted2); font-size: 10px; padding: 0 4px; }
+
+  /* Script review expansion */
+  .script-review {
+    margin-top: 16px;
+    border-top: 1px solid var(--border-subtle);
+    padding-top: 16px;
+    display: flex;
+    flex-direction: column;
+    gap: 14px;
+  }
+  .review-label {
+    font-family: var(--mono);
+    font-size: 9px;
+    color: var(--muted);
+    letter-spacing: 0.14em;
+    text-transform: uppercase;
+    display: block;
+    margin-bottom: 8px;
+  }
+  .hooks-grid { display: grid; grid-template-columns: repeat(3, 1fr); gap: 8px; }
+  .hook-card {
+    background: var(--surface);
+    border: 1px solid var(--border);
+    border-radius: 4px;
+    padding: 10px 12px;
+    font-size: 11.5px;
+    color: var(--text);
+    line-height: 1.5;
+    cursor: pointer;
+    transition: all 0.15s;
+  }
+  .hook-card:hover { border-color: rgba(255,217,61,0.3); }
+  .hook-card.selected {
+    background: rgba(255,217,61,0.07);
+    border-color: var(--gold);
+    color: var(--gold);
+    box-shadow: 0 0 16px rgba(255,217,61,0.1);
+  }
+  .review-textarea {
+    width: 100%;
+    background: var(--surface);
+    border: 1px solid var(--border);
+    border-radius: 4px;
+    color: var(--text);
+    font-family: var(--font);
+    font-size: 12.5px;
+    line-height: 1.65;
+    padding: 10px 12px;
+    resize: vertical;
+    outline: none;
+  }
+  .review-input {
+    width: 100%;
+    background: var(--surface);
+    border: 1px solid var(--border);
+    border-radius: 4px;
+    color: var(--text);
+    font-family: var(--font);
+    font-size: 12.5px;
+    padding: 9px 12px;
+    outline: none;
+  }
+  .review-footer { display: flex; align-items: center; gap: 12px; }
+  .wc-badge {
+    font-family: var(--mono);
+    font-size: 10px;
+    color: var(--green);
+    flex-shrink: 0;
+  }
+  .wc-badge.bad { color: var(--red); }
+  .approve-btn {
+    flex: 1;
+    background: var(--gold);
+    color: #000;
+    border: none;
+    padding: 12px;
+    font-family: var(--mono);
+    font-size: 10.5px;
+    font-weight: 700;
+    letter-spacing: 0.14em;
+    border-radius: 3px;
+    cursor: pointer;
+    box-shadow: 0 2px 16px rgba(255,217,61,0.3);
+    transition: all 0.15s;
+  }
+  .approve-btn:hover { box-shadow: 0 4px 24px rgba(255,217,61,0.4); transform: translateY(-1px); }
+
+  /* Quality gate */
+  .quality-gate {
+    margin-top: 12px;
+    padding: 12px 14px;
+    background: rgba(59,130,246,0.05);
+    border: 1px solid rgba(59,130,246,0.2);
+    border-radius: 5px;
+    display: flex;
+    align-items: center;
+    gap: 10px;
+  }
+  .quality-label { font-family: var(--mono); font-size: 10px; color: var(--muted); flex: 1; }
+  .reject-btn {
+    background: transparent;
+    border: 1px solid rgba(239,68,68,0.4);
+    color: var(--red);
+    padding: 6px 14px;
+    border-radius: 3px;
+    font-family: var(--mono);
+    font-size: 9.5px;
+    cursor: pointer;
+  }
+  .publish-btn {
+    background: var(--green);
+    border: none;
+    color: #000;
+    padding: 6px 14px;
+    border-radius: 3px;
+    font-family: var(--mono);
+    font-size: 9.5px;
+    font-weight: 700;
+    cursor: pointer;
+  }
+
+  /* YouTube link */
+  .yt-link {
+    display: flex;
+    align-items: center;
+    gap: 6px;
+    margin-top: 10px;
+    font-family: var(--mono);
+    font-size: 10px;
+    color: var(--gold);
+    text-decoration: none;
+  }
+</style>
+</head>
+<body>
+<div class="layout">
+
+  <!-- ── SIDEBAR ── -->
+  <aside class="sidebar">
+
+    <div class="sidebar-brand">
+      <div class="brand-name">SHORTS BOT</div>
+      <div class="brand-sub">PIPELINE DASHBOARD</div>
+    </div>
+
+    <!-- Metrics -->
+    <div class="sidebar-section">
+      <div class="section-label">Overview</div>
+      <div class="metrics-grid">
+        <div class="metric-pill total">
+          <div class="metric-num" style="color:var(--text)">12</div>
+          <div class="metric-label">Total</div>
+        </div>
+        <div class="metric-pill gold">
+          <div class="metric-num gold">3</div>
+          <div class="metric-label">Need Review</div>
+        </div>
+        <div class="metric-pill blue">
+          <div class="metric-num blue">2</div>
+          <div class="metric-label">Running</div>
+        </div>
+        <div class="metric-pill green">
+          <div class="metric-num green">8</div>
+          <div class="metric-label">Uploaded</div>
+        </div>
+      </div>
+    </div>
+
+    <!-- Pipeline stages -->
+    <div class="sidebar-section">
+      <div class="section-label">Pipeline Stages</div>
+      <div class="stage-list">
+        <div class="stage-row">
+          <div class="stage-dot"></div>
+          <span class="stage-name">Discovered</span>
+          <span class="stage-count dim">0</span>
+        </div>
+        <div class="stage-row">
+          <div class="stage-dot"></div>
+          <span class="stage-name">Transcribed</span>
+          <span class="stage-count dim">1</span>
+          <button class="stage-btn">Generate</button>
+        </div>
+        <div class="stage-row active">
+          <div class="stage-dot gold"></div>
+          <span class="stage-name active">Drafted</span>
+          <span class="stage-count">3</span>
+        </div>
+        <div class="stage-row">
+          <div class="stage-dot"></div>
+          <span class="stage-name">Approved</span>
+          <span class="stage-count dim">2</span>
+        </div>
+        <div class="stage-row">
+          <div class="stage-dot"></div>
+          <span class="stage-name">Rendered</span>
+          <span class="stage-count dim">1</span>
+          <button class="stage-btn">Upload All</button>
+        </div>
+        <div class="stage-row">
+          <div class="stage-dot" style="background:var(--green)"></div>
+          <span class="stage-name" style="color:var(--muted)">Uploaded</span>
+          <span class="stage-count dim" style="color:var(--green)">8</span>
+        </div>
+      </div>
+    </div>
+
+    <!-- Actions -->
+    <div class="sidebar-section">
+      <div class="section-label">Actions</div>
+      <div class="action-btns">
+        <button class="btn-primary">▶ RUN FULL PIPELINE</button>
+        <button class="btn-secondary">⚡ POLL CHANNELS</button>
+      </div>
+    </div>
+
+    <!-- URL Input -->
+    <div class="sidebar-section">
+      <div class="section-label">Add Video</div>
+      <div class="url-form">
+        <input class="url-input" placeholder="youtube.com/watch?v=…" value="">
+        <button class="url-submit">+</button>
+      </div>
+    </div>
+
+    <!-- Channel Health -->
+    <div class="sidebar-section">
+      <div class="section-label">Channel Health</div>
+      <div class="channel-item">
+        <div class="channel-name"><span class="channel-status"></span>Telugu News TV</div>
+        <div class="channel-meta">Last polled: 2h ago · 3 new</div>
+      </div>
+      <div class="channel-item">
+        <div class="channel-name"><span class="channel-status" style="background:var(--muted);box-shadow:none"></span>Factly Telugu</div>
+        <div class="channel-meta">Last polled: 14h ago · 0 new</div>
+      </div>
+    </div>
+
+    <!-- Costs -->
+    <div class="sidebar-section">
+      <div class="section-label">Estimated Cost</div>
+      <div class="cost-row"><span class="cost-label">OpenRouter (AI)</span><span class="cost-val">$0.0019</span></div>
+      <div class="cost-row"><span class="cost-label">ElevenLabs (TTS)</span><span class="cost-val">$0.0029</span></div>
+      <div class="cost-row cost-total"><span class="cost-label">Session total</span><span class="cost-val">$0.0048</span></div>
+    </div>
+
+    <!-- Style distribution -->
+    <div class="sidebar-section" style="border-bottom:none">
+      <div class="section-label">Style Distribution</div>
+      <div class="style-bar-row">
+        <div class="style-bar-label"><span>Documentary</span><span>5</span></div>
+        <div class="style-bar-track"><div class="style-bar-fill" style="width:100%"></div></div>
+      </div>
+      <div class="style-bar-row">
+        <div class="style-bar-label"><span>Storytelling</span><span>4</span></div>
+        <div class="style-bar-track"><div class="style-bar-fill" style="width:80%"></div></div>
+      </div>
+      <div class="style-bar-row">
+        <div class="style-bar-label"><span>Comedy</span><span>2</span></div>
+        <div class="style-bar-track"><div class="style-bar-fill" style="width:40%"></div></div>
+      </div>
+      <div class="style-bar-row">
+        <div class="style-bar-label"><span>Explainer</span><span>1</span></div>
+        <div class="style-bar-track"><div class="style-bar-fill" style="width:20%"></div></div>
+      </div>
+    </div>
+
+  </aside>
+
+  <!-- ── MAIN PANEL ── -->
+  <main class="main-panel">
+    <div class="queue-header">
+      <div class="queue-title">
+        <div class="queue-dot"></div>
+        3 VIDEOS NEED REVIEW
+      </div>
+      <span style="font-family:var(--mono);font-size:9px;color:var(--muted);letter-spacing:0.08em">12 TOTAL · UPDATED JUST NOW</span>
+    </div>
+
+    <div class="queue-body">
+
+      <!-- Card 1: NEEDS REVIEW (expanded) -->
+      <div class="video-card needs-review expanded">
+        <div class="card-header">
+          <div class="card-title-block">
+            <div class="card-title">Hyderabad ki sabse badi secret — ek raat mein sab kuch badal gaya</div>
+            <div class="card-meta">Telugu News TV · 8m ago</div>
+          </div>
+          <div class="card-right">
+            <span class="badge review">NEEDS REVIEW</span>
+            <span class="chevron open">▲</span>
+          </div>
+        </div>
+        <div class="script-review">
+          <div>
+            <span class="review-label">Hook — pick one</span>
+            <div class="hooks-grid">
+              <div class="hook-card selected">Hyderabad mein ek raat aisi aayi jo sab kuch badal ke chali gayi — aur aaj bhi log iske baare mein baat karte hain.</div>
+              <div class="hook-card">Kya aapko pata hai ki Hyderabad ki ek baat hai jo aaj bhi secret hai? Main aaj wo raaz kholne wala hoon.</div>
+              <div class="hook-card">Teen saal pehle, ek raat mein Hyderabad mein kuch aisa hua jo poore city ko hila ke rakh diya.</div>
+            </div>
+          </div>
+          <div>
+            <span class="review-label">Body</span>
+            <textarea class="review-textarea" rows="5">Hyderabad ka naam suno toh dimaag mein aata hai biryani, tech parks, aur purani galiyan. Lekin ek cheez hai jo history mein dab ke reh gayi. 2019 mein, ek raat aise hi — sheher ke beech mein — ek aisi discovery hui jo sab kuch badal sakti thi. Archaeologists ko mile the ek underground structure ke clues, 400 saal purane. Aaj bhi wo site partially sealed hai. Kyun? Ye aaj bhi ek raaz hai.</textarea>
+          </div>
+          <div>
+            <span class="review-label">CTA</span>
+            <input class="review-input" value="Poori kahani dekhni hai? Link description mein hai — original video dekho.">
+          </div>
+          <div class="review-footer">
+            <span class="wc-badge">142 words ✓</span>
+            <button class="approve-btn">APPROVE &amp; RUN PIPELINE</button>
+          </div>
+        </div>
+      </div>
+
+      <!-- Card 2: RUNNING -->
+      <div class="video-card">
+        <div class="card-header">
+          <div class="card-title-block">
+            <div class="card-title">Delhi Metro — 20 saal mein kitna badla India ka sabse bada transport</div>
+            <div class="card-meta">Factly Telugu · 23m ago</div>
+          </div>
+          <div class="card-right">
+            <span class="badge running">RUNNING</span>
+          </div>
+        </div>
+        <div class="step-tracker">
+          <div class="step-item">
+            <span class="step-pill done">✓ Storyboard</span>
+          </div>
+          <span class="step-connector">→</span>
+          <div class="step-item">
+            <span class="step-pill running">Render</span>
+          </div>
+          <span class="step-connector">→</span>
+          <div class="step-item">
+            <span class="step-pill pending">Upload</span>
+          </div>
+        </div>
+      </div>
+
+      <!-- Card 3: RENDERED — quality gate -->
+      <div class="video-card">
+        <div class="card-header">
+          <div class="card-title-block">
+            <div class="card-title">Vizag beach ke neeche chhupi hai ek poori duniya — sunoge toh yakeen nahi aayega</div>
+            <div class="card-meta">Telugu News TV · 1h ago</div>
+          </div>
+          <div class="card-right">
+            <span class="badge running" style="color:var(--blue)">READY TO PUBLISH</span>
+          </div>
+        </div>
+        <div class="step-tracker">
+          <div class="step-item"><span class="step-pill done">✓ Storyboard</span></div>
+          <span class="step-connector">→</span>
+          <div class="step-item"><span class="step-pill done">✓ Render</span></div>
+          <span class="step-connector">→</span>
+          <div class="step-item"><span class="step-pill pending">Upload</span></div>
+        </div>
+        <div class="quality-gate">
+          <span class="quality-label">Preview render before publishing to YouTube</span>
+          <button class="reject-btn">✕ Reject</button>
+          <button class="publish-btn">↑ PUBLISH</button>
+        </div>
+      </div>
+
+      <!-- Card 4: UPLOADED -->
+      <div class="video-card">
+        <div class="card-header">
+          <div class="card-title-block">
+            <div class="card-title">Rajasthan ke is gaon mein 500 saal se koi nahin mara — science aur mystery</div>
+            <div class="card-meta">Factly Telugu · 3h ago</div>
+          </div>
+          <div class="card-right">
+            <span class="badge uploaded">UPLOADED</span>
+          </div>
+        </div>
+        <a class="yt-link" href="#">↗ youtube.com/shorts/dQw4w9WgXcQ</a>
+      </div>
+
+      <!-- Card 5: NEEDS REVIEW -->
+      <div class="video-card needs-review">
+        <div class="card-header">
+          <div class="card-title-block">
+            <div class="card-title">Andhra Pradesh ke khaane ki ye 5 dishes aapne khayi nahi toh kuch nahi khaaya</div>
+            <div class="card-meta">Telugu News TV · 5h ago</div>
+          </div>
+          <div class="card-right">
+            <span class="badge review">NEEDS REVIEW</span>
+            <span class="chevron">▼</span>
+          </div>
+        </div>
+      </div>
+
+    </div>
+  </main>
+</div>
+</body>
+</html>

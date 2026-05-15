@@ -1,0 +1,704 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Shorts Bot — Light Theme</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&family=JetBrains+Mono:wght@400;500;600&display=swap" rel="stylesheet">
+<style>
+  :root {
+    --bg:          #f4f3ef;
+    --sidebar-bg:  #ffffff;
+    --card:        #ffffff;
+    --card-hover:  #fdfcfa;
+    --surface:     #f8f7f4;
+    --border:      #e4e2dc;
+    --border-sub:  #eeede9;
+    --text:        #18181b;
+    --text2:       #3f3f46;
+    --muted:       #a1a1aa;
+    --muted2:      #d4d4d8;
+    --gold:        #c8890a;
+    --gold-bg:     #fef3c7;
+    --gold-border: #fde68a;
+    --gold-text:   #92400e;
+    --blue:        #2563eb;
+    --blue-bg:     #eff6ff;
+    --blue-border: #bfdbfe;
+    --green:       #16a34a;
+    --green-bg:    #f0fdf4;
+    --green-border:#bbf7d0;
+    --red:         #dc2626;
+    --red-bg:      #fef2f2;
+    --red-border:  #fecaca;
+    --font: 'Inter', sans-serif;
+    --mono: 'JetBrains Mono', monospace;
+  }
+  * { box-sizing: border-box; margin: 0; padding: 0; }
+  body { background: var(--bg); color: var(--text); font-family: var(--font); font-size: 13px; -webkit-font-smoothing: antialiased; overflow: hidden; height: 100vh; }
+
+  .layout { display: flex; height: 100vh; overflow: hidden; }
+
+  /* ── SIDEBAR ── */
+  .sidebar {
+    width: 252px;
+    flex-shrink: 0;
+    background: var(--sidebar-bg);
+    border-right: 1px solid var(--border);
+    border-left: 3px solid var(--gold);
+    display: flex;
+    flex-direction: column;
+    overflow-y: auto;
+    overflow-x: hidden;
+    box-shadow: 2px 0 12px rgba(0,0,0,0.04);
+  }
+  .sidebar::-webkit-scrollbar { width: 4px; }
+  .sidebar::-webkit-scrollbar-track { background: transparent; }
+  .sidebar::-webkit-scrollbar-thumb { background: var(--border); border-radius: 2px; }
+
+  .sidebar-brand {
+    padding: 18px 16px 14px;
+    border-bottom: 1px solid var(--border-sub);
+  }
+  .brand-name {
+    font-family: var(--mono);
+    font-size: 12.5px;
+    font-weight: 600;
+    letter-spacing: 0.22em;
+    color: var(--gold);
+  }
+  .brand-sub {
+    font-family: var(--mono);
+    font-size: 9px;
+    color: var(--muted);
+    letter-spacing: 0.12em;
+    margin-top: 3px;
+  }
+
+  .sidebar-section { padding: 13px 16px; border-bottom: 1px solid var(--border-sub); }
+  .section-label {
+    font-family: var(--mono);
+    font-size: 9px;
+    color: var(--muted);
+    letter-spacing: 0.14em;
+    text-transform: uppercase;
+    margin-bottom: 10px;
+  }
+
+  /* Metrics */
+  .metrics-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 5px; }
+  .metric-pill {
+    background: var(--surface);
+    border: 1px solid var(--border-sub);
+    border-radius: 6px;
+    padding: 8px 10px;
+  }
+  .metric-pill.gold { background: var(--gold-bg); border-color: var(--gold-border); }
+  .metric-pill.blue { background: var(--blue-bg); border-color: var(--blue-border); }
+  .metric-pill.green { background: var(--green-bg); border-color: var(--green-border); }
+  .metric-pill.red { background: var(--red-bg); border-color: var(--red-border); }
+  .metric-num { font-family: var(--mono); font-size: 20px; font-weight: 700; line-height: 1; color: var(--text); }
+  .metric-num.gold { color: var(--gold); }
+  .metric-num.blue { color: var(--blue); }
+  .metric-num.green { color: var(--green); }
+  .metric-num.red { color: var(--red); }
+  .metric-label { font-family: var(--mono); font-size: 8.5px; color: var(--muted); letter-spacing: 0.08em; margin-top: 2px; }
+
+  /* Pipeline stages */
+  .stage-list { display: flex; flex-direction: column; gap: 2px; }
+  .stage-row {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    padding: 5px 6px;
+    border-radius: 4px;
+    border: 1px solid transparent;
+  }
+  .stage-row.active { background: var(--gold-bg); border-color: var(--gold-border); }
+  .stage-dot { width: 5px; height: 5px; border-radius: 50%; background: var(--muted2); flex-shrink: 0; }
+  .stage-dot.gold { background: var(--gold); }
+  .stage-dot.green { background: var(--green); }
+  .stage-name { font-family: var(--mono); font-size: 9.5px; color: var(--muted); flex: 1; }
+  .stage-name.active { color: var(--gold-text); font-weight: 500; }
+  .stage-count { font-family: var(--mono); font-size: 10px; font-weight: 600; color: var(--gold); }
+  .stage-count.dim { color: var(--muted); font-weight: 400; font-size: 9.5px; }
+  .stage-btn {
+    font-family: var(--mono);
+    font-size: 8px;
+    background: white;
+    border: 1px solid var(--border);
+    color: var(--text2);
+    padding: 2px 6px;
+    border-radius: 3px;
+    cursor: pointer;
+    letter-spacing: 0.04em;
+    white-space: nowrap;
+  }
+
+  /* Action buttons */
+  .action-btns { display: flex; flex-direction: column; gap: 6px; }
+  .btn-primary {
+    background: var(--gold);
+    color: white;
+    border: none;
+    padding: 9px 14px;
+    font-family: var(--mono);
+    font-size: 10px;
+    font-weight: 600;
+    letter-spacing: 0.1em;
+    border-radius: 4px;
+    cursor: pointer;
+    box-shadow: 0 1px 4px rgba(200,137,10,0.3);
+  }
+  .btn-secondary {
+    background: var(--surface);
+    color: var(--text2);
+    border: 1px solid var(--border);
+    padding: 8px 14px;
+    font-family: var(--mono);
+    font-size: 10px;
+    letter-spacing: 0.08em;
+    border-radius: 4px;
+    cursor: pointer;
+  }
+
+  /* URL input */
+  .url-form { display: flex; gap: 5px; }
+  .url-input {
+    flex: 1;
+    background: var(--surface);
+    border: 1px solid var(--border);
+    border-radius: 4px;
+    color: var(--text);
+    font-family: var(--mono);
+    font-size: 9.5px;
+    padding: 7px 9px;
+    outline: none;
+  }
+  .url-submit {
+    background: var(--gold);
+    border: none;
+    color: white;
+    padding: 7px 11px;
+    border-radius: 4px;
+    font-family: var(--mono);
+    font-size: 12px;
+    font-weight: 600;
+    cursor: pointer;
+  }
+
+  /* Channel health */
+  .channel-item { margin-bottom: 9px; }
+  .channel-name { font-family: var(--mono); font-size: 10px; color: var(--text); margin-bottom: 2px; display: flex; align-items: center; gap: 5px; }
+  .channel-status { width: 5px; height: 5px; border-radius: 50%; background: var(--green); flex-shrink: 0; }
+  .channel-status.stale { background: var(--muted2); }
+  .channel-meta { font-family: var(--mono); font-size: 8.5px; color: var(--muted); }
+
+  /* Cost */
+  .cost-row { display: flex; justify-content: space-between; align-items: center; margin-bottom: 4px; }
+  .cost-label { font-family: var(--mono); font-size: 9px; color: var(--muted); }
+  .cost-val { font-family: var(--mono); font-size: 10px; color: var(--text2); }
+  .cost-total { border-top: 1px solid var(--border); margin-top: 6px; padding-top: 6px; }
+  .cost-total .cost-val { color: var(--gold); font-weight: 600; font-size: 12px; }
+
+  /* Style bars */
+  .style-bar-row { margin-bottom: 5px; }
+  .style-bar-label { font-family: var(--mono); font-size: 8.5px; color: var(--muted); display: flex; justify-content: space-between; margin-bottom: 3px; }
+  .style-bar-track { background: var(--surface); border-radius: 2px; height: 3px; overflow: hidden; border: 1px solid var(--border-sub); }
+  .style-bar-fill { height: 100%; border-radius: 2px; background: var(--gold); }
+
+  /* ── MAIN PANEL ── */
+  .main-panel { flex: 1; display: flex; flex-direction: column; overflow: hidden; }
+  .queue-header {
+    padding: 16px 24px 13px;
+    background: var(--bg);
+    border-bottom: 1px solid var(--border);
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    flex-shrink: 0;
+  }
+  .queue-title {
+    font-family: var(--mono);
+    font-size: 11px;
+    color: var(--gold);
+    letter-spacing: 0.1em;
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    font-weight: 600;
+  }
+  .queue-dot {
+    width: 6px; height: 6px; border-radius: 50%;
+    background: var(--gold);
+    animation: pulse-dot 2s ease-in-out infinite;
+  }
+  @keyframes pulse-dot { 0%,100%{opacity:1} 50%{opacity:0.4} }
+  .queue-meta { font-family: var(--mono); font-size: 9px; color: var(--muted); letter-spacing: 0.06em; }
+
+  .queue-body {
+    flex: 1;
+    overflow-y: auto;
+    padding: 14px 20px;
+    display: flex;
+    flex-direction: column;
+    gap: 7px;
+    background: var(--bg);
+  }
+  .queue-body::-webkit-scrollbar { width: 5px; }
+  .queue-body::-webkit-scrollbar-track { background: transparent; }
+  .queue-body::-webkit-scrollbar-thumb { background: var(--border); border-radius: 3px; }
+
+  /* ── VIDEO CARDS ── */
+  .video-card {
+    background: var(--card);
+    border: 1px solid var(--border);
+    border-radius: 8px;
+    padding: 13px 16px;
+    box-shadow: 0 1px 4px rgba(0,0,0,0.04);
+    transition: border-color 0.2s, box-shadow 0.2s, transform 0.1s;
+  }
+  .video-card:hover { box-shadow: 0 2px 10px rgba(0,0,0,0.07); transform: translateY(-1px); }
+  .video-card.needs-review { cursor: pointer; }
+  .video-card.needs-review:hover { border-color: var(--gold-border); }
+  .video-card.expanded { border-color: var(--gold); border-width: 1.5px; box-shadow: 0 0 0 3px var(--gold-bg), 0 2px 12px rgba(0,0,0,0.06); }
+
+  .card-header { display: flex; justify-content: space-between; align-items: flex-start; gap: 12px; }
+  .card-title-block { flex: 1; min-width: 0; }
+  .card-title { font-size: 13.5px; font-weight: 500; color: var(--text); white-space: nowrap; overflow: hidden; text-overflow: ellipsis; letter-spacing: -0.01em; margin-bottom: 3px; }
+  .card-meta { font-family: var(--mono); font-size: 10px; color: var(--muted); }
+  .card-right { display: flex; align-items: center; gap: 8px; flex-shrink: 0; }
+  .chevron { color: var(--muted); font-size: 10px; }
+  .chevron.open { color: var(--gold); }
+
+  /* Badges */
+  .badge {
+    font-family: var(--mono);
+    font-size: 9px;
+    font-weight: 500;
+    letter-spacing: 0.08em;
+    padding: 3px 8px;
+    border-radius: 3px;
+    white-space: nowrap;
+  }
+  .badge.review { color: var(--gold-text); background: var(--gold-bg); border: 1px solid var(--gold-border); }
+  .badge.running { color: var(--blue); background: var(--blue-bg); border: 1px solid var(--blue-border); }
+  .badge.ready { color: #7c3aed; background: #f5f3ff; border: 1px solid #ddd6fe; }
+  .badge.uploaded { color: var(--green); background: var(--green-bg); border: 1px solid var(--green-border); }
+  .badge.failed { color: var(--red); background: var(--red-bg); border: 1px solid var(--red-border); }
+  .badge.dim { color: var(--muted); background: var(--surface); border: 1px solid var(--border); }
+
+  /* Step tracker */
+  .step-tracker { display: flex; align-items: center; margin-top: 10px; gap: 0; }
+  .step-item { display: flex; align-items: center; }
+  .step-pill {
+    font-family: var(--mono);
+    font-size: 9.5px;
+    font-weight: 500;
+    letter-spacing: 0.04em;
+    padding: 3px 11px;
+    border-radius: 20px;
+    border: 1px solid transparent;
+    white-space: nowrap;
+  }
+  .step-pill.done { background: #fef3c7; color: var(--gold); border-color: var(--gold-border); }
+  .step-pill.running { background: var(--blue-bg); color: var(--blue); border-color: var(--blue-border); animation: step-pulse 1.5s ease-in-out infinite; }
+  .step-pill.pending { color: var(--muted); }
+  .step-pill.failed { background: var(--red-bg); color: var(--red); border-color: var(--red-border); }
+  @keyframes step-pulse { 0%,100%{opacity:1} 50%{opacity:0.5} }
+  .step-connector { color: var(--muted2); font-size: 10px; padding: 0 4px; }
+
+  /* Script review */
+  .script-review {
+    margin-top: 14px;
+    border-top: 1px solid var(--border-sub);
+    padding-top: 14px;
+    display: flex;
+    flex-direction: column;
+    gap: 13px;
+  }
+  .review-label {
+    font-family: var(--mono);
+    font-size: 9px;
+    color: var(--muted);
+    letter-spacing: 0.12em;
+    text-transform: uppercase;
+    display: block;
+    margin-bottom: 7px;
+  }
+  .hooks-grid { display: grid; grid-template-columns: repeat(3, 1fr); gap: 7px; }
+  .hook-card {
+    background: var(--surface);
+    border: 1.5px solid var(--border);
+    border-radius: 5px;
+    padding: 10px 11px;
+    font-size: 11.5px;
+    color: var(--text2);
+    line-height: 1.5;
+    cursor: pointer;
+    transition: all 0.15s;
+  }
+  .hook-card:hover { border-color: var(--gold-border); background: var(--gold-bg); }
+  .hook-card.selected { background: var(--gold-bg); border-color: var(--gold); color: var(--gold-text); }
+  .review-textarea {
+    width: 100%;
+    background: var(--surface);
+    border: 1px solid var(--border);
+    border-radius: 5px;
+    color: var(--text);
+    font-family: var(--font);
+    font-size: 12.5px;
+    line-height: 1.65;
+    padding: 10px 12px;
+    resize: vertical;
+    outline: none;
+    transition: border-color 0.15s;
+  }
+  .review-textarea:focus { border-color: var(--gold); box-shadow: 0 0 0 3px var(--gold-bg); }
+  .review-input {
+    width: 100%;
+    background: var(--surface);
+    border: 1px solid var(--border);
+    border-radius: 5px;
+    color: var(--text);
+    font-family: var(--font);
+    font-size: 12.5px;
+    padding: 9px 12px;
+    outline: none;
+    transition: border-color 0.15s;
+  }
+  .review-footer { display: flex; align-items: center; gap: 12px; }
+  .wc-badge { font-family: var(--mono); font-size: 10px; color: var(--green); flex-shrink: 0; font-weight: 500; }
+  .wc-badge.bad { color: var(--red); }
+  .review-actions { display: flex; gap: 6px; flex: 1; }
+  .regenerate-btn {
+    background: var(--surface);
+    color: var(--text2);
+    border: 1px solid var(--border);
+    padding: 11px 14px;
+    font-family: var(--mono);
+    font-size: 10px;
+    letter-spacing: 0.06em;
+    border-radius: 4px;
+    cursor: pointer;
+    white-space: nowrap;
+  }
+  .approve-btn {
+    flex: 1;
+    background: var(--gold);
+    color: white;
+    border: none;
+    padding: 11px;
+    font-family: var(--mono);
+    font-size: 10.5px;
+    font-weight: 600;
+    letter-spacing: 0.1em;
+    border-radius: 4px;
+    cursor: pointer;
+    box-shadow: 0 1px 6px rgba(200,137,10,0.35);
+    transition: all 0.15s;
+  }
+
+  /* Quality gate */
+  .quality-gate {
+    margin-top: 10px;
+    padding: 10px 13px;
+    background: #f5f3ff;
+    border: 1px solid #ddd6fe;
+    border-radius: 6px;
+    display: flex;
+    align-items: center;
+    gap: 8px;
+  }
+  .quality-label { font-family: var(--mono); font-size: 9.5px; color: #6d28d9; flex: 1; }
+  .reject-btn {
+    background: var(--red-bg);
+    border: 1px solid var(--red-border);
+    color: var(--red);
+    padding: 6px 12px;
+    border-radius: 4px;
+    font-family: var(--mono);
+    font-size: 9.5px;
+    font-weight: 500;
+    cursor: pointer;
+  }
+  .publish-btn {
+    background: var(--green);
+    border: none;
+    color: white;
+    padding: 6px 14px;
+    border-radius: 4px;
+    font-family: var(--mono);
+    font-size: 9.5px;
+    font-weight: 600;
+    cursor: pointer;
+  }
+
+  .yt-link {
+    display: flex;
+    align-items: center;
+    gap: 5px;
+    margin-top: 8px;
+    font-family: var(--mono);
+    font-size: 10px;
+    color: var(--blue);
+    text-decoration: none;
+  }
+</style>
+</head>
+<body>
+<div class="layout">
+
+  <!-- SIDEBAR -->
+  <aside class="sidebar">
+    <div class="sidebar-brand">
+      <div class="brand-name">SHORTS BOT</div>
+      <div class="brand-sub">PIPELINE DASHBOARD</div>
+    </div>
+
+    <div class="sidebar-section">
+      <div class="section-label">Overview</div>
+      <div class="metrics-grid">
+        <div class="metric-pill">
+          <div class="metric-num">12</div>
+          <div class="metric-label">Total</div>
+        </div>
+        <div class="metric-pill gold">
+          <div class="metric-num gold">3</div>
+          <div class="metric-label">Need Review</div>
+        </div>
+        <div class="metric-pill blue">
+          <div class="metric-num blue">2</div>
+          <div class="metric-label">Running</div>
+        </div>
+        <div class="metric-pill green">
+          <div class="metric-num green">8</div>
+          <div class="metric-label">Uploaded</div>
+        </div>
+      </div>
+    </div>
+
+    <div class="sidebar-section">
+      <div class="section-label">Pipeline Stages</div>
+      <div class="stage-list">
+        <div class="stage-row">
+          <div class="stage-dot"></div>
+          <span class="stage-name">Discovered</span>
+          <span class="stage-count dim">0</span>
+        </div>
+        <div class="stage-row">
+          <div class="stage-dot"></div>
+          <span class="stage-name">Transcribed</span>
+          <span class="stage-count dim">1</span>
+          <button class="stage-btn">Generate</button>
+        </div>
+        <div class="stage-row active">
+          <div class="stage-dot gold"></div>
+          <span class="stage-name active">Drafted</span>
+          <span class="stage-count">3</span>
+        </div>
+        <div class="stage-row">
+          <div class="stage-dot"></div>
+          <span class="stage-name">Approved</span>
+          <span class="stage-count dim">2</span>
+        </div>
+        <div class="stage-row">
+          <div class="stage-dot" style="background:#7c3aed"></div>
+          <span class="stage-name" style="color:#6d28d9">Rendered</span>
+          <span class="stage-count" style="color:#7c3aed">1</span>
+          <button class="stage-btn" style="border-color:#ddd6fe;color:#6d28d9">Publish All</button>
+        </div>
+        <div class="stage-row">
+          <div class="stage-dot green"></div>
+          <span class="stage-name" style="color:var(--muted)">Uploaded</span>
+          <span class="stage-count dim" style="color:var(--green)">8</span>
+        </div>
+      </div>
+    </div>
+
+    <div class="sidebar-section">
+      <div class="section-label">Actions</div>
+      <div class="action-btns">
+        <button class="btn-primary">▶ RUN FULL PIPELINE</button>
+        <button class="btn-secondary">⚡ POLL CHANNELS</button>
+      </div>
+    </div>
+
+    <div class="sidebar-section">
+      <div class="section-label">Add Video</div>
+      <div class="url-form">
+        <input class="url-input" placeholder="youtube.com/watch?v=…">
+        <button class="url-submit">+</button>
+      </div>
+    </div>
+
+    <div class="sidebar-section">
+      <div class="section-label">Channel Health</div>
+      <div class="channel-item">
+        <div class="channel-name"><span class="channel-status"></span>Telugu News TV</div>
+        <div class="channel-meta">Polled 2h ago · 3 new videos</div>
+      </div>
+      <div class="channel-item" style="margin-bottom:0">
+        <div class="channel-name"><span class="channel-status stale"></span>Factly Telugu</div>
+        <div class="channel-meta">Polled 14h ago · 0 new</div>
+      </div>
+    </div>
+
+    <div class="sidebar-section">
+      <div class="section-label">Estimated Cost</div>
+      <div class="cost-row"><span class="cost-label">OpenRouter (AI)</span><span class="cost-val">$0.0019</span></div>
+      <div class="cost-row"><span class="cost-label">ElevenLabs (TTS)</span><span class="cost-val">$0.0029</span></div>
+      <div class="cost-row cost-total"><span class="cost-label">Total</span><span class="cost-val">$0.0048</span></div>
+    </div>
+
+    <div class="sidebar-section" style="border-bottom:none">
+      <div class="section-label">Style Distribution</div>
+      <div class="style-bar-row">
+        <div class="style-bar-label"><span>Documentary</span><span>5</span></div>
+        <div class="style-bar-track"><div class="style-bar-fill" style="width:100%"></div></div>
+      </div>
+      <div class="style-bar-row">
+        <div class="style-bar-label"><span>Storytelling</span><span>4</span></div>
+        <div class="style-bar-track"><div class="style-bar-fill" style="width:80%"></div></div>
+      </div>
+      <div class="style-bar-row">
+        <div class="style-bar-label"><span>Comedy</span><span>2</span></div>
+        <div class="style-bar-track"><div class="style-bar-fill" style="width:40%"></div></div>
+      </div>
+      <div class="style-bar-row">
+        <div class="style-bar-label"><span>Explainer</span><span>1</span></div>
+        <div class="style-bar-track"><div class="style-bar-fill" style="width:20%"></div></div>
+      </div>
+    </div>
+  </aside>
+
+  <!-- MAIN PANEL -->
+  <main class="main-panel">
+    <div class="queue-header">
+      <div class="queue-title">
+        <div class="queue-dot"></div>
+        3 VIDEOS NEED REVIEW
+      </div>
+      <span class="queue-meta">12 TOTAL · UPDATED JUST NOW</span>
+    </div>
+
+    <div class="queue-body">
+
+      <!-- Expanded card -->
+      <div class="video-card needs-review expanded">
+        <div class="card-header">
+          <div class="card-title-block">
+            <div class="card-title">Hyderabad ki sabse badi secret — ek raat mein sab kuch badal gaya</div>
+            <div class="card-meta">Telugu News TV · 8m ago</div>
+          </div>
+          <div class="card-right">
+            <span class="badge review">NEEDS REVIEW</span>
+            <span class="chevron open">▲</span>
+          </div>
+        </div>
+        <div class="script-review">
+          <div>
+            <span class="review-label">Hook — pick one</span>
+            <div class="hooks-grid">
+              <div class="hook-card selected">Hyderabad mein ek raat aisi aayi jo sab kuch badal ke chali gayi — aur aaj bhi log iske baare mein baat karte hain.</div>
+              <div class="hook-card">Kya aapko pata hai ki Hyderabad ki ek baat hai jo aaj bhi secret hai?</div>
+              <div class="hook-card">Teen saal pehle, ek raat mein Hyderabad mein kuch aisa hua jo poore city ko hila ke rakh diya.</div>
+            </div>
+          </div>
+          <div>
+            <span class="review-label">Body</span>
+            <textarea class="review-textarea" rows="5">Hyderabad ka naam suno toh dimaag mein aata hai biryani, tech parks, aur purani galiyan. Lekin ek cheez hai jo history mein dab ke reh gayi. 2019 mein, ek raat aise hi — sheher ke beech mein — ek aisi discovery hui. Archaeologists ko mile the ek underground structure ke clues, 400 saal purane.</textarea>
+          </div>
+          <div>
+            <span class="review-label">CTA</span>
+            <input class="review-input" value="Poori kahani dekhni hai? Link description mein hai — original video dekho.">
+          </div>
+          <div class="review-footer">
+            <span class="wc-badge">142 words ✓</span>
+            <div class="review-actions">
+              <button class="regenerate-btn">↺ Regenerate</button>
+              <button class="approve-btn">APPROVE &amp; RUN</button>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <!-- Running card -->
+      <div class="video-card">
+        <div class="card-header">
+          <div class="card-title-block">
+            <div class="card-title">Delhi Metro — 20 saal mein kitna badla India ka sabse bada transport</div>
+            <div class="card-meta">Factly Telugu · 23m ago</div>
+          </div>
+          <div class="card-right">
+            <span class="badge running">RUNNING</span>
+          </div>
+        </div>
+        <div class="step-tracker">
+          <div class="step-item"><span class="step-pill done">✓ Storyboard</span></div>
+          <span class="step-connector">→</span>
+          <div class="step-item"><span class="step-pill running">Render</span></div>
+          <span class="step-connector">→</span>
+          <div class="step-item"><span class="step-pill pending">Upload</span></div>
+        </div>
+      </div>
+
+      <!-- Ready to publish card -->
+      <div class="video-card">
+        <div class="card-header">
+          <div class="card-title-block">
+            <div class="card-title">Vizag beach ke neeche chhupi hai ek poori duniya — sunoge toh yakeen nahi aayega</div>
+            <div class="card-meta">Telugu News TV · 1h ago</div>
+          </div>
+          <div class="card-right">
+            <span class="badge ready">READY TO PUBLISH</span>
+          </div>
+        </div>
+        <div class="step-tracker">
+          <div class="step-item"><span class="step-pill done">✓ Storyboard</span></div>
+          <span class="step-connector">→</span>
+          <div class="step-item"><span class="step-pill done">✓ Render</span></div>
+          <span class="step-connector">→</span>
+          <div class="step-item"><span class="step-pill pending">Upload</span></div>
+        </div>
+        <div class="quality-gate">
+          <span class="quality-label">Preview the render, then publish or reject</span>
+          <button class="reject-btn">✕ Reject</button>
+          <button class="publish-btn">↑ Publish to YouTube</button>
+        </div>
+      </div>
+
+      <!-- Uploaded card -->
+      <div class="video-card">
+        <div class="card-header">
+          <div class="card-title-block">
+            <div class="card-title">Rajasthan ke is gaon mein 500 saal se koi nahin mara</div>
+            <div class="card-meta">Factly Telugu · 3h ago</div>
+          </div>
+          <div class="card-right">
+            <span class="badge uploaded">UPLOADED</span>
+          </div>
+        </div>
+        <a class="yt-link" href="#">↗ youtube.com/shorts/dQw4w9WgXcQ</a>
+      </div>
+
+      <!-- Collapsed needs-review -->
+      <div class="video-card needs-review">
+        <div class="card-header">
+          <div class="card-title-block">
+            <div class="card-title">Andhra Pradesh ke khaane ki ye 5 dishes — khayi nahi toh kuch nahi khaaya</div>
+            <div class="card-meta">Telugu News TV · 5h ago</div>
+          </div>
+          <div class="card-right">
+            <span class="badge review">NEEDS REVIEW</span>
+            <span class="chevron">▼</span>
+          </div>
+        </div>
+      </div>
+
+    </div>
+  </main>
+</div>
+</body>
+</html>

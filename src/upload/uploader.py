@@ -2,6 +2,7 @@ from __future__ import annotations
 
 import json
 import re
+import shutil
 from dataclasses import dataclass
 from pathlib import Path
 
@@ -9,8 +10,13 @@ from src.db.database import get_conn, log_event
 from src.utils.config import env, load_config, project_root
 from src.utils.logger import logger
 
-_SCRIPTS_DIR = project_root() / "data" / "scripts"
-_VIDEOS_DIR = project_root() / "data" / "videos"
+_SCRIPTS_DIR    = project_root() / "data" / "scripts"
+_VIDEOS_DIR     = project_root() / "data" / "videos"
+_TRANSCRIPTS_DIR = project_root() / "data" / "transcripts"
+_STORYBOARDS_DIR = project_root() / "data" / "storyboards"
+_AUDIO_DIR_DATA  = project_root() / "data" / "audio"
+_AUDIO_DIR_TTS   = project_root() / "remotion" / "public" / "audio"
+_SCENES_DIR      = project_root() / "remotion" / "public" / "scenes"
 
 # YouTube Data API scopes needed for upload
 _SCOPES = ["https://www.googleapis.com/auth/youtube.upload"]
@@ -73,6 +79,9 @@ def upload(video_id: str) -> UploadResult:
             (yt_id, yt_url, video_id),
         )
     log_event(video_id, "upload", f"Uploaded as {yt_url}")
+
+    # Clean up all local artifacts — upload confirmed, nothing needed locally anymore
+    _cleanup(video_id)
 
     return UploadResult(video_id=video_id, youtube_id=yt_id, youtube_url=yt_url, title=title)
 
@@ -191,6 +200,35 @@ def _build_tags(script_text: str, cfg) -> list[str]:
         result.append(tag)
         total += len(tag) + 1
     return result
+
+
+def _cleanup(video_id: str) -> None:
+    """Delete every local artifact for a video after successful YouTube upload."""
+    # Individual files
+    files = [
+        _VIDEOS_DIR     / f"{video_id}.mp4",
+        _VIDEOS_DIR     / f"{video_id}_props.json",
+        _SCRIPTS_DIR    / f"{video_id}_draft.json",
+        _SCRIPTS_DIR    / f"{video_id}_approved.txt",
+        _TRANSCRIPTS_DIR / f"{video_id}.json",
+        _TRANSCRIPTS_DIR / f"{video_id}.txt",
+        _STORYBOARDS_DIR / f"{video_id}.json",
+        _AUDIO_DIR_TTS  / f"{video_id}.mp3",
+        _AUDIO_DIR_TTS  / f"{video_id}_captions.json",
+    ]
+    # Whisper fallback audio (any extension)
+    files += list(_AUDIO_DIR_DATA.glob(f"{video_id}.*")) if _AUDIO_DIR_DATA.exists() else []
+
+    for f in files:
+        if f.exists():
+            f.unlink()
+            logger.info(f"Deleted: {f}")
+
+    # AI scene clips/images directory
+    scenes_dir = _SCENES_DIR / video_id
+    if scenes_dir.exists():
+        shutil.rmtree(scenes_dir)
+        logger.info(f"Deleted scenes dir: {scenes_dir}")
 
 
 def _truncate(text: str, max_len: int) -> str:

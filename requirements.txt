@@ -39,6 +39,7 @@ win10toast==0.9; sys_platform == "win32"
 
 # Utils
 requests==2.32.3
+pytrends>=4.9.2
 pydantic==2.9.2
 loguru==0.7.2
 tenacity==9.0.0

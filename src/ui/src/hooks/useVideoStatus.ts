@@ -2,7 +2,7 @@ import { useEffect, useState } from 'react'
 import { fetchStatus } from '../lib/api'
 import type { PipelineStatus, VideoStatus } from '../lib/types'
 
-const IN_PROGRESS: PipelineStatus[] = ['script_approved']
+const IN_PROGRESS: PipelineStatus[] = ['script_approved', 'video_rendered']
 
 export function useVideoStatus(videoId: string, status: PipelineStatus) {
   const [videoStatus, setVideoStatus] = useState<VideoStatus | null>(null)

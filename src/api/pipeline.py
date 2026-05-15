@@ -35,7 +35,7 @@ def get_progress(video_id: str) -> VideoProgress | None:
 
 
 def run_pipeline(video_id: str) -> None:
-    """Storyboard → render → upload in sequence. Updates in-memory progress each step."""
+    """Storyboard → render. Upload is a separate user-triggered step (quality gate)."""
     prog = VideoProgress()
     with _lock:
         _progress[video_id] = prog
@@ -45,8 +45,15 @@ def run_pipeline(video_id: str) -> None:
         return
 
     _run_step(prog, 1, "Render", _do_render, video_id)
-    if prog.steps[1].state == "failed":
-        return
+
+
+def run_upload(video_id: str) -> None:
+    """Upload only — called after the user approves the render via the quality gate."""
+    prog = VideoProgress()
+    prog.steps[0].state = "done"
+    prog.steps[1].state = "done"
+    with _lock:
+        _progress[video_id] = prog
 
     _run_step(prog, 2, "Upload", _do_upload, video_id)
 

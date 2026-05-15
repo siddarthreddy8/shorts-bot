@@ -1,0 +1,121 @@
+<h2>Dashboard Layout</h2>
+<p class="subtitle">The new React UI needs to fit: metrics, pipeline triggers, video queue, activity log, cost tracker, and channel health. Which structure feels right?</p>
+
+<div class="options">
+  <div class="option" data-choice="a" onclick="toggleSelect(this)">
+    <div class="letter">A</div>
+    <div class="content">
+      <h3>Command Bar + Full-Width Queue</h3>
+      <p>Sticky header, then a compact command strip (metrics + action buttons), then the video queue takes the full width. Activity/cost/health collapse into a bottom drawer or are accessible via small inline toggles.</p>
+      <div class="mockup" style="margin-top:12px">
+        <div class="mockup-header">Layout A</div>
+        <div class="mockup-body" style="padding:0;font-size:11px">
+          <div style="background:#ffd93d;color:#000;padding:6px 12px;font-weight:700;letter-spacing:2px;font-size:10px">SHORTS BOT ── PIPELINE DASHBOARD</div>
+          <div style="background:#141928;border-bottom:1px solid #1e2a45;padding:8px 12px;display:flex;gap:16px;align-items:center;flex-wrap:wrap">
+            <span style="color:#4a5578;font-size:10px">TOTAL <span style="color:#e8eaf0;font-weight:700">12</span></span>
+            <span style="color:#4a5578;font-size:10px">DRAFTS <span style="color:#ffd93d;font-weight:700">3</span></span>
+            <span style="color:#4a5578;font-size:10px">UPLOADED <span style="color:#22c55e;font-weight:700">8</span></span>
+            <span style="color:#4a5578;font-size:10px">FAILED <span style="color:#ef4444;font-weight:700">1</span></span>
+            <div style="flex:1"></div>
+            <button style="background:#1e2a45;color:#e8eaf0;border:1px solid #1e2a45;padding:4px 10px;border-radius:3px;font-size:10px;cursor:pointer">⚡ Poll</button>
+            <button style="background:#ffd93d;color:#000;border:none;padding:4px 10px;border-radius:3px;font-size:10px;font-weight:700;cursor:pointer">▶ Run All</button>
+          </div>
+          <div style="padding:8px 12px;display:flex;gap:6px;flex-wrap:wrap">
+            <span style="background:#1e2a45;color:#4a5578;padding:3px 8px;border-radius:3px;font-size:9px">Discovered 0</span>
+            <span style="background:#1e2a45;color:#4a5578;padding:3px 8px;border-radius:3px;font-size:9px">Transcribed 1</span>
+            <span style="background:#ffd93d22;color:#ffd93d;border:1px solid #ffd93d44;padding:3px 8px;border-radius:3px;font-size:9px">Drafted 3 ✏️</span>
+            <span style="background:#3b82f622;color:#3b82f6;border:1px solid #3b82f644;padding:3px 8px;border-radius:3px;font-size:9px">Running 2 ⟳</span>
+            <span style="background:#22c55e22;color:#22c55e;border:1px solid #22c55e44;padding:3px 8px;border-radius:3px;font-size:9px">Uploaded 8 ✓</span>
+          </div>
+          <div style="padding:8px 12px;display:flex;flex-direction:column;gap:6px">
+            <div style="background:#0f1420;border:1px solid #ffd93d44;border-radius:4px;padding:8px 10px;font-size:10px;color:#e8eaf0">📹 Hyderabad ki sabse badi secret — NEEDS REVIEW ▼</div>
+            <div style="background:#0f1420;border:1px solid #1e2a45;border-radius:4px;padding:8px 10px;font-size:10px;color:#e8eaf0">📹 Delhi Metro facts — RUNNING ⟳ Storyboard → Render → Upload</div>
+            <div style="background:#0f1420;border:1px solid #1e2a45;border-radius:4px;padding:8px 10px;font-size:10px;color:#22c55e">📹 Vizag hidden gems — UPLOADED ✓ ↗ youtube.com/...</div>
+          </div>
+        </div>
+      </div>
+      <div class="pros-cons" style="margin-top:10px">
+        <div class="pros"><h4>Pros</h4><ul><li>Queue is the hero — gets most space</li><li>Everything above the fold</li><li>Feels like a focused tool</li></ul></div>
+        <div class="cons"><h4>Cons</h4><ul><li>Activity log & cost tracker hidden</li><li>Pipeline stage bar is compact</li></ul></div>
+      </div>
+    </div>
+  </div>
+
+  <div class="option" data-choice="b" onclick="toggleSelect(this)">
+    <div class="letter">B</div>
+    <div class="content">
+      <h3>Two-Panel (Sidebar + Queue)</h3>
+      <p>Left sidebar (fixed, ~280px) holds metrics, pipeline stage counts, action buttons, channel health, and cost tracker. Right panel is the scrollable video queue.</p>
+      <div class="mockup" style="margin-top:12px">
+        <div class="mockup-header">Layout B</div>
+        <div class="mockup-body" style="padding:0;font-size:10px">
+          <div style="background:#ffd93d;color:#000;padding:6px 12px;font-weight:700;letter-spacing:2px;font-size:10px">SHORTS BOT</div>
+          <div style="display:flex;min-height:160px">
+            <div style="background:#0a0e1a;border-right:1px solid #1e2a45;width:120px;padding:8px;flex-shrink:0">
+              <div style="color:#4a5578;font-size:9px;letter-spacing:1px;margin-bottom:6px">PIPELINE</div>
+              <div style="color:#4a5578;font-size:9px;margin-bottom:2px">Discovered <span style="color:#e8eaf0">0</span></div>
+              <div style="color:#4a5578;font-size:9px;margin-bottom:2px">Transcribed <span style="color:#e8eaf0">1</span></div>
+              <div style="color:#ffd93d;font-size:9px;margin-bottom:2px;font-weight:700">Drafted <span>3</span></div>
+              <div style="color:#3b82f6;font-size:9px;margin-bottom:2px">Running <span>2</span></div>
+              <div style="color:#22c55e;font-size:9px;margin-bottom:8px">Uploaded <span>8</span></div>
+              <button style="background:#ffd93d;color:#000;border:none;padding:3px 6px;border-radius:2px;font-size:9px;font-weight:700;width:100%;margin-bottom:3px">▶ Run All</button>
+              <button style="background:#1e2a45;color:#e8eaf0;border:none;padding:3px 6px;border-radius:2px;font-size:9px;width:100%;margin-bottom:8px">⚡ Poll</button>
+              <div style="color:#4a5578;font-size:9px;letter-spacing:1px;margin-bottom:4px">COST</div>
+              <div style="color:#e8eaf0;font-size:9px">$0.0048</div>
+              <div style="color:#4a5578;font-size:8px">12 scripts</div>
+            </div>
+            <div style="padding:8px;flex:1;display:flex;flex-direction:column;gap:5px">
+              <div style="background:#0f1420;border:1px solid #ffd93d44;border-radius:3px;padding:6px 8px;font-size:9px;color:#e8eaf0">Hyderabad ki sabse badi secret — NEEDS REVIEW</div>
+              <div style="background:#0f1420;border:1px solid #1e2a45;border-radius:3px;padding:6px 8px;font-size:9px;color:#3b82f6">Delhi Metro facts — RUNNING ⟳</div>
+              <div style="background:#0f1420;border:1px solid #1e2a45;border-radius:3px;padding:6px 8px;font-size:9px;color:#22c55e">Vizag hidden gems — UPLOADED ✓</div>
+            </div>
+          </div>
+        </div>
+      </div>
+      <div class="pros-cons" style="margin-top:10px">
+        <div class="pros"><h4>Pros</h4><ul><li>All controls always visible</li><li>Classic dashboard feel</li><li>Queue gets clean dedicated space</li></ul></div>
+        <div class="cons"><h4>Cons</h4><ul><li>Sidebar takes permanent space</li><li>Queue cards feel narrower</li><li>Less focused on the queue</li></ul></div>
+      </div>
+    </div>
+  </div>
+
+  <div class="option" data-choice="c" onclick="toggleSelect(this)">
+    <div class="letter">C</div>
+    <div class="content">
+      <h3>Stacked Sections (Full-Width)</h3>
+      <p>Everything full-width and stacked: stats row → pipeline kanban → video queue → activity + stats. User scrolls down to see all. Queue is in the middle, always above the fold on load.</p>
+      <div class="mockup" style="margin-top:12px">
+        <div class="mockup-header">Layout C</div>
+        <div class="mockup-body" style="padding:0;font-size:10px">
+          <div style="background:#ffd93d;color:#000;padding:6px 12px;font-weight:700;letter-spacing:2px;font-size:10px">SHORTS BOT ── PIPELINE DASHBOARD</div>
+          <div style="padding:8px 12px;display:grid;grid-template-columns:repeat(5,1fr);gap:6px">
+            <div style="background:#0f1420;border:1px solid #1e2a45;border-radius:3px;padding:6px;text-align:center"><div style="color:#4a5578;font-size:8px">TOTAL</div><div style="color:#e8eaf0;font-size:14px;font-weight:700">12</div></div>
+            <div style="background:#0f1420;border:1px solid #1e2a45;border-radius:3px;padding:6px;text-align:center"><div style="color:#4a5578;font-size:8px">PENDING</div><div style="color:#ffd93d;font-size:14px;font-weight:700">3</div></div>
+            <div style="background:#0f1420;border:1px solid #1e2a45;border-radius:3px;padding:6px;text-align:center"><div style="color:#4a5578;font-size:8px">RUNNING</div><div style="color:#3b82f6;font-size:14px;font-weight:700">2</div></div>
+            <div style="background:#0f1420;border:1px solid #1e2a45;border-radius:3px;padding:6px;text-align:center"><div style="color:#4a5578;font-size:8px">UPLOADED</div><div style="color:#22c55e;font-size:14px;font-weight:700">8</div></div>
+            <div style="background:#0f1420;border:1px solid #1e2a45;border-radius:3px;padding:6px;text-align:center"><div style="color:#4a5578;font-size:8px">FAILED</div><div style="color:#ef4444;font-size:14px;font-weight:700">1</div></div>
+          </div>
+          <div style="padding:4px 12px 8px;display:flex;gap:6px;align-items:center">
+            <button style="background:#1e2a45;color:#e8eaf0;border:1px solid #1e2a45;padding:4px 10px;border-radius:3px;font-size:9px">⚡ Poll channels</button>
+            <button style="background:#ffd93d;color:#000;border:none;padding:4px 10px;border-radius:3px;font-size:9px;font-weight:700">▶ Run pipeline</button>
+            <input placeholder="+ Add URL…" style="background:#0f1420;border:1px solid #1e2a45;color:#e8eaf0;padding:4px 8px;border-radius:3px;font-size:9px;flex:1">
+          </div>
+          <div style="padding:4px 12px 8px;display:flex;flex-direction:column;gap:5px">
+            <div style="color:#4a5578;font-size:9px;letter-spacing:1px;margin-bottom:2px">● 3 VIDEOS NEED REVIEW</div>
+            <div style="background:#0f1420;border:1px solid #ffd93d44;border-radius:3px;padding:6px 8px;font-size:9px;color:#e8eaf0">Hyderabad ki sabse badi secret — NEEDS REVIEW ▼</div>
+            <div style="background:#0f1420;border:1px solid #1e2a45;border-radius:3px;padding:6px 8px;font-size:9px;color:#3b82f6">Delhi Metro facts — RUNNING ⟳ Storyboard ✓ → Render ⟳ → Upload ○</div>
+            <div style="background:#0f1420;border:1px solid #1e2a45;border-radius:3px;padding:6px 8px;font-size:9px;color:#22c55e">Vizag hidden gems — UPLOADED ✓</div>
+          </div>
+          <div style="padding:6px 12px;border-top:1px solid #1e2a45;display:grid;grid-template-columns:1fr 1fr;gap:8px">
+            <div><div style="color:#4a5578;font-size:8px;letter-spacing:1px">RECENT ACTIVITY</div><div style="color:#4a5578;font-size:8px;margin-top:4px">✅ upload — done · 2m ago</div><div style="color:#4a5578;font-size:8px">⟳ render — running · 5m ago</div></div>
+            <div><div style="color:#4a5578;font-size:8px;letter-spacing:1px">COSTS</div><div style="color:#e8eaf0;font-size:11px;font-weight:700;margin-top:4px">$0.0048</div><div style="color:#4a5578;font-size:8px">ElevenLabs $0.0024 · AI $0.0024</div></div>
+          </div>
+        </div>
+      </div>
+      <div class="pros-cons" style="margin-top:10px">
+        <div class="pros"><h4>Pros</h4><ul><li>All features visible, nothing hidden</li><li>URL input integrated naturally</li><li>Easy to scan top-to-bottom</li></ul></div>
+        <div class="cons"><h4>Cons</h4><ul><li>Requires scrolling for bottom sections</li><li>Activity/cost below the fold</li></ul></div>
+      </div>
+    </div>
+  </div>
+</div>

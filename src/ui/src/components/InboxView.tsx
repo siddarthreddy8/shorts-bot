@@ -1,11 +1,12 @@
 import type { Video } from '../lib/types'
-import { VideoCard } from './VideoCard'
+import { InboxCard } from './InboxCard'
 
-const PIPELINE_STATUSES = ['script_approved', 'video_rendered', 'uploaded', 'failed']
+export function InboxView({ videos, onRefresh }: { videos: Video[]; onRefresh: () => void }) {
+  const inboxVideos = videos
+    .filter((v) => v.status === 'transcribed' || v.status === 'script_drafted')
+    .sort((a, b) => b.updated_at.localeCompare(a.updated_at))
 
-export function VideoQueue({ videos, loading, onRefresh }: { videos: Video[]; loading: boolean; onRefresh: () => void }) {
-  const pipelineVideos = videos.filter((v) => PIPELINE_STATUSES.includes(v.status))
-  const running = pipelineVideos.filter((v) => v.status === 'script_approved').length
+  const awaitingCount = inboxVideos.filter((v) => v.status === 'transcribed').length
 
   return (
     <div>
@@ -25,26 +26,26 @@ export function VideoQueue({ videos, loading, onRefresh }: { videos: Video[]; lo
           fontFamily: 'var(--font-mono)',
           fontSize: '0.68rem',
           fontWeight: 600,
-          color: running > 0 ? 'var(--c-gold)' : 'var(--c-muted)',
+          color: awaitingCount > 0 ? 'var(--c-blue)' : 'var(--c-muted)',
           letterSpacing: '0.1em',
           display: 'flex',
           alignItems: 'center',
           gap: 8,
         }}>
-          {running > 0 && (
+          {awaitingCount > 0 && (
             <span style={{
               display: 'inline-block',
               width: 6,
               height: 6,
               borderRadius: '50%',
-              background: 'var(--c-gold)',
+              background: 'var(--c-blue)',
               animation: 'pulse-dot 2s ease-in-out infinite',
               flexShrink: 0,
             }} />
           )}
-          {running > 0
-            ? `⟳ PIPELINE — ${running} IN PROGRESS`
-            : '⟳ PIPELINE'}
+          {awaitingCount > 0
+            ? `◎ INBOX — ${awaitingCount} AWAITING SCRIPT`
+            : '◎ INBOX'}
         </div>
         <span style={{
           fontFamily: 'var(--font-mono)',
@@ -52,7 +53,7 @@ export function VideoQueue({ videos, loading, onRefresh }: { videos: Video[]; lo
           color: 'var(--c-muted)',
           letterSpacing: '0.06em',
         }}>
-          {pipelineVideos.length} TOTAL
+          {inboxVideos.length} TOTAL
         </span>
       </div>
 
@@ -63,25 +64,19 @@ export function VideoQueue({ videos, loading, onRefresh }: { videos: Video[]; lo
         flexDirection: 'column',
         gap: 7,
       }}>
-        {loading && (
-          <p style={{ color: 'var(--c-muted)', fontFamily: 'var(--font-mono)', textAlign: 'center', paddingTop: 40, fontSize: '0.75rem' }}>
-            Loading…
-          </p>
-        )}
-
-        {!loading && pipelineVideos.length === 0 && (
+        {inboxVideos.length === 0 && (
           <div style={{ textAlign: 'center', paddingTop: 40, paddingBottom: 24 }}>
             <p style={{ fontFamily: 'var(--font-mono)', fontSize: '0.75rem', color: 'var(--c-muted)', margin: '0 0 6px' }}>
-              No videos in pipeline.
+              No videos awaiting review.
             </p>
             <p style={{ fontFamily: 'var(--font-mono)', fontSize: '0.62rem', color: 'var(--c-muted2)', margin: 0 }}>
-              Approve a script in the Inbox to start rendering.
+              Poll channels or add a URL to get started.
             </p>
           </div>
         )}
 
-        {pipelineVideos.map((v) => (
-          <VideoCard key={v.video_id} video={v} onRefresh={onRefresh} />
+        {inboxVideos.map((v) => (
+          <InboxCard key={v.video_id} video={v} onRefresh={onRefresh} />
         ))}
       </div>
     </div>
