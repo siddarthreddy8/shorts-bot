@@ -2,6 +2,7 @@ import { Composition } from "remotion";
 import { HoogMap, hoogMapSchema } from "./compositions/HoogMap";
 import { HoogScene, hoogSceneSchema } from "./compositions/HoogScene";
 import { HoogTypography, hoogTypographySchema } from "./compositions/HoogTypography";
+import { Thumbnail, thumbnailSchema } from "./compositions/Thumbnail";
 
 // 9:16 vertical, 30 fps, up to 180 sec (Shorts limit enforced at upload)
 const WIDTH = 1080;
@@ -54,6 +55,20 @@ export const Root: React.FC = () => {
           title: "A Bold Claim",
           captions: [],
           audioSrc: null,
+        }}
+      />
+      <Composition
+        id="Thumbnail"
+        component={Thumbnail}
+        durationInFrames={1}
+        fps={30}
+        width={1280}
+        height={720}
+        schema={thumbnailSchema}
+        defaultProps={{
+          phrase: "The Truth Revealed",
+          style: "documentary",
+          niche: "history",
         }}
       />
     </>
