@@ -11,6 +11,18 @@ echo "=== [1/8] System packages ==="
 sudo dnf update -y
 sudo dnf install -y git ffmpeg chromium python3.12 python3.12-pip nodejs npm
 
+echo "=== [1b/8] Add 4GB swap (required for Remotion rendering on low-RAM instance) ==="
+if [ ! -f /swapfile ]; then
+  sudo dd if=/dev/zero of=/swapfile bs=128M count=32
+  sudo chmod 600 /swapfile
+  sudo mkswap /swapfile
+  sudo swapon /swapfile
+  echo '/swapfile swap swap defaults 0 0' | sudo tee -a /etc/fstab
+  echo "Swap enabled: $(free -h | grep Swap)"
+else
+  echo "Swap already exists, skipping."
+fi
+
 echo "=== [2/8] AWS CLI (pre-installed on AL2023, verify) ==="
 aws --version
 
