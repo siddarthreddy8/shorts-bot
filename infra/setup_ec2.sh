@@ -4,7 +4,7 @@
 # Usage: bash setup_ec2.sh
 set -euo pipefail
 
-REPO_URL="https://github.com/YOUR_USERNAME/shorts-bot.git"  # replace with your repo URL
+REPO_URL="https://github.com/siddarthreddy8/shorts-bot.git"
 APP_DIR="/home/ec2-user/shorts-bot"
 
 echo "=== [1/8] System packages ==="
