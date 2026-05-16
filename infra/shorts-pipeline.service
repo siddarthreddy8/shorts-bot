@@ -12,9 +12,10 @@ ExecStart=/usr/bin/timeout 5400 \
     /home/ec2-user/shorts-bot/.venv/bin/python -m src.main run-pipeline
 
 ExecStopPost=/bin/bash -c \
-    'aws ec2 stop-instances \
+    'REGION=$(curl -sf http://169.254.169.254/latest/meta-data/placement/region || echo us-east-1); \
+     aws ec2 stop-instances \
      --instance-ids "$(curl -sf http://169.254.169.254/latest/meta-data/instance-id)" \
-     --region us-east-1 || true'
+     --region "$REGION" || true'
 
 EnvironmentFile=/home/ec2-user/shorts-bot/.env
 StandardOutput=journal
