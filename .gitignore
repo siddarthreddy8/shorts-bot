@@ -39,6 +39,9 @@ src/ui/dist/
 *.swp
 .DS_Store
 
+# Brainstorming session files
+.superpowers/
+
 # AI tool artifacts
 .agent/
 .agents/
