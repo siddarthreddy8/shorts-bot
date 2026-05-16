@@ -1,0 +1,56 @@
+#!/usr/bin/env bash
+# One-time EC2 setup script for Amazon Linux 2023.
+# Run as ec2-user after first SSH into the instance.
+# Usage: bash setup_ec2.sh
+set -euo pipefail
+
+REPO_URL="https://github.com/YOUR_USERNAME/shorts-bot.git"  # replace with your repo URL
+APP_DIR="/home/ec2-user/shorts-bot"
+
+echo "=== [1/8] System packages ==="
+sudo dnf update -y
+sudo dnf install -y git ffmpeg chromium python3.12 python3.12-pip nodejs npm
+
+echo "=== [2/8] AWS CLI (pre-installed on AL2023, verify) ==="
+aws --version
+
+echo "=== [3/8] Clone repository ==="
+git clone "$REPO_URL" "$APP_DIR"
+cd "$APP_DIR"
+
+echo "=== [4/8] Python virtual environment ==="
+python3.12 -m venv .venv
+.venv/bin/pip install --upgrade pip
+.venv/bin/pip install -r requirements.txt
+
+echo "=== [5/8] Remotion dependencies ==="
+cd remotion && npm ci && cd ..
+
+echo "=== [5b/8] Build React dashboard ==="
+cd src/ui && npm ci && npm run build && cd ../..
+
+echo "=== [6/8] Copy .env (you must do this manually) ==="
+echo "ACTION REQUIRED: scp your .env to $APP_DIR/.env"
+echo "  scp .env ec2-user@<your-ec2-ip>:$APP_DIR/.env"
+echo "Press ENTER once .env is in place..."
+read -r
+
+echo "=== [7/8] Initialize database ==="
+.venv/bin/python -m src.main init
+
+echo "=== [8/8] Install and enable systemd services ==="
+sudo cp infra/shorts-pipeline.service /etc/systemd/system/
+sudo cp infra/shorts-dashboard.service /etc/systemd/system/
+sudo systemctl daemon-reload
+sudo systemctl enable shorts-pipeline.service shorts-dashboard.service
+echo "Services enabled. They will run on next boot."
+
+echo ""
+echo "=== Setup complete ==="
+echo "Next steps:"
+echo "  1. Assign an Elastic IP to this instance in AWS console"
+echo "  2. Attach the EC2 IAM role (ec2-pipeline-role) in AWS console"
+echo "  3. Create the Lambda function (see infra/lambda_start_ec2.py)"
+echo "  4. Create EventBridge Scheduler rule (cron: 0 3:30 * * ? *)"
+echo "  5. Test: sudo systemctl start shorts-pipeline.service"
+echo "     Then: journalctl -fu shorts-pipeline.service"
