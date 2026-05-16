@@ -59,6 +59,18 @@ def cmd_run(url: str | None) -> None:
             logger.error(f"Failed to process {video.video_id}: {e}")
 
 
+@cli.command("run-pipeline")
+def cmd_run_pipeline() -> None:
+    """Run full automated pipeline end-to-end, then stop the EC2 instance.
+
+    Intended for cloud use: EventBridge starts the instance, this command
+    runs on boot via systemd, and stops the instance when done.
+    Locally it behaves the same but skips the shutdown step.
+    """
+    from src.pipeline.runner import run
+    run()
+
+
 @cli.command("monitor")
 def cmd_monitor() -> None:
     """Poll source channels for new videos and save to DB."""
