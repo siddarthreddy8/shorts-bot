@@ -55,7 +55,7 @@ Two components only — one EC2 instance and an EBS volume. No always-on servers
 ## Pipeline Changes Required
 
 ### 1. Remove quality gate
-The `QualityGate.tsx` component currently blocks auto-upload pending manual approval. On cloud this gate is removed — scripts auto-approve and flow directly to render → upload.
+The `QualityGate.tsx` component currently blocks auto-upload pending manual approval. On cloud this gate is removed — scripts auto-approve with hindi as the output language and storytelling type script and flow directly to render → upload.
 
 In the Python pipeline, the check for `_approved.txt` is replaced with an auto-approve step that writes the approved script file immediately after generation.
 
@@ -82,7 +82,7 @@ Type=oneshot
 User=ec2-user
 WorkingDirectory=/home/ec2-user/shorts-bot
 ExecStart=/home/ec2-user/shorts-bot/.venv/bin/python -m src.main --run-pipeline
-EnvironmentFile=/home/ubuntu/shorts-bot/.env
+EnvironmentFile=/home/ec2-user/shorts-bot/.env
 StandardOutput=journal
 StandardError=journal
 
