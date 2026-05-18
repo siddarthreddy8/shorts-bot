@@ -10,7 +10,7 @@ APP_DIR="/home/ubuntu/shorts-bot"
 echo "=== [1/8] System packages ==="
 sudo apt update -y
 sudo apt upgrade -y
-sudo apt install -y git ffmpeg python3.12 python3.12-venv python3-pip nodejs npm
+sudo apt install -y git ffmpeg python3 python3-venv python3-pip nodejs npm
 
 echo "=== [1b/8] Add 4GB swap (required for Remotion rendering on low-RAM instance) ==="
 if [ ! -f /swapfile ]; then
@@ -39,7 +39,7 @@ git clone "$REPO_URL" "$APP_DIR"
 cd "$APP_DIR"
 
 echo "=== [4/8] Python virtual environment ==="
-python3.12 -m venv .venv
+python3 -m venv .venv
 .venv/bin/pip install --upgrade pip
 .venv/bin/pip install -r requirements.txt
 
