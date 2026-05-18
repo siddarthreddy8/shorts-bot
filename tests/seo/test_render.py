@@ -16,7 +16,8 @@ async def test_render_thumbnail_returns_path_on_success():
     mock_proc.communicate = AsyncMock(return_value=(b"", b""))
 
     with patch("src.video.render.asyncio.create_subprocess_exec", return_value=mock_proc), \
-         patch("src.video.render.project_root", return_value=Path("/fake")):
+         patch("src.video.render.project_root", return_value=Path("/fake")), \
+         patch("pathlib.Path.mkdir"):
         result = await render_thumbnail(
             video_id="abc123",
             phrase="You Won't Believe This",
@@ -34,7 +35,8 @@ async def test_render_thumbnail_raises_on_nonzero_exit():
     mock_proc.communicate = AsyncMock(return_value=(b"", b"Render error"))
 
     with patch("src.video.render.asyncio.create_subprocess_exec", return_value=mock_proc), \
-         patch("src.video.render.project_root", return_value=Path("/fake")):
+         patch("src.video.render.project_root", return_value=Path("/fake")), \
+         patch("pathlib.Path.mkdir"):
         with pytest.raises(RuntimeError, match="Thumbnail render failed"):
             await render_thumbnail("vid1", "phrase", "style", "niche")
 
@@ -51,7 +53,8 @@ async def test_render_thumbnail_passes_correct_props():
         return mock_proc
 
     with patch("src.video.render.asyncio.create_subprocess_exec", side_effect=capture), \
-         patch("src.video.render.project_root", return_value=Path("/fake")):
+         patch("src.video.render.project_root", return_value=Path("/fake")), \
+         patch("pathlib.Path.mkdir"):
         await render_thumbnail("vid1", "Shocking Truth", "documentary", "history")
 
     props_arg = next(a for a in captured_args if "--props=" in str(a))
