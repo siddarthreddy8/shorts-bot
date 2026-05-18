@@ -5,11 +5,11 @@ Wants=network-online.target
 
 [Service]
 Type=simple
-User=ec2-user
-WorkingDirectory=/home/ec2-user/shorts-bot
-ExecStart=/home/ec2-user/shorts-bot/.venv/bin/uvicorn src.api.main:app \
+User=ubuntu
+WorkingDirectory=/home/ubuntu/shorts-bot
+ExecStart=/home/ubuntu/shorts-bot/.venv/bin/uvicorn src.api.main:app \
     --host 0.0.0.0 --port 8000
-EnvironmentFile=/home/ec2-user/shorts-bot/.env
+EnvironmentFile=/home/ubuntu/shorts-bot/.env
 Restart=on-failure
 StandardOutput=journal
 StandardError=journal

@@ -3,13 +3,19 @@ from __future__ import annotations
 from unittest.mock import MagicMock, patch
 
 
-def test_get_instance_id_reads_metadata():
-    mock_response = MagicMock()
-    mock_response.__enter__ = lambda s: s
-    mock_response.__exit__ = MagicMock(return_value=False)
-    mock_response.read.return_value = b"i-0abc123def456"
+def _mock_urlopen_response(data: bytes) -> MagicMock:
+    resp = MagicMock()
+    resp.__enter__ = lambda s: s
+    resp.__exit__ = MagicMock(return_value=False)
+    resp.read.return_value = data
+    return resp
 
-    with patch("urllib.request.urlopen", return_value=mock_response):
+
+def test_get_instance_id_reads_metadata():
+    with patch("urllib.request.urlopen", side_effect=[
+        _mock_urlopen_response(b"fake-imdsv2-token"),
+        _mock_urlopen_response(b"i-0abc123def456"),
+    ]):
         from src.pipeline.shutdown import _get_instance_id
         assert _get_instance_id() == "i-0abc123def456"
 
@@ -26,18 +32,10 @@ def test_stop_self_calls_stop_instances():
     mock_ec2.stop_instances.assert_called_once_with(InstanceIds=["i-0abc123def456"])
 
 
-def test_is_on_ec2_returns_true_when_metadata_reachable():
-    mock_response = MagicMock()
-    mock_response.__enter__ = lambda s: s
-    mock_response.__exit__ = MagicMock(return_value=False)
+def test_stop_self_noops_when_not_on_ec2():
+    with patch("src.pipeline.shutdown._get_instance_id", side_effect=OSError("no route")), \
+         patch("boto3.client") as mock_boto3:
+        from src.pipeline.shutdown import stop_self
+        stop_self(region="us-east-1")
 
-    with patch("urllib.request.urlopen", return_value=mock_response):
-        from src.pipeline.shutdown import _is_on_ec2
-        assert _is_on_ec2() is True
-
-
-def test_is_on_ec2_returns_false_when_metadata_unreachable():
-    import urllib.error
-    with patch("urllib.request.urlopen", side_effect=OSError("no route")):
-        from src.pipeline.shutdown import _is_on_ec2
-        assert _is_on_ec2() is False
+    mock_boto3.assert_not_called()

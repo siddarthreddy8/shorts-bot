@@ -1,15 +1,16 @@
 #!/usr/bin/env bash
-# One-time EC2 setup script for Amazon Linux 2023.
-# Run as ec2-user after first SSH into the instance.
+# One-time EC2 setup script for Ubuntu 24.04/26.04 LTS.
+# Run as ubuntu after first SSH into the instance.
 # Usage: bash setup_ec2.sh
 set -euo pipefail
 
 REPO_URL="https://github.com/siddarthreddy8/shorts-bot.git"
-APP_DIR="/home/ec2-user/shorts-bot"
+APP_DIR="/home/ubuntu/shorts-bot"
 
 echo "=== [1/8] System packages ==="
-sudo dnf update -y
-sudo dnf install -y git ffmpeg chromium python3.12 python3.12-pip nodejs npm
+sudo apt update -y
+sudo apt upgrade -y
+sudo apt install -y git ffmpeg python3.12 python3.12-venv python3-pip nodejs npm
 
 echo "=== [1b/8] Add 4GB swap (required for Remotion rendering on low-RAM instance) ==="
 if [ ! -f /swapfile ]; then
@@ -23,7 +24,14 @@ else
   echo "Swap already exists, skipping."
 fi
 
-echo "=== [2/8] AWS CLI (pre-installed on AL2023, verify) ==="
+echo "=== [2/8] AWS CLI ==="
+if ! command -v aws &> /dev/null; then
+  curl "https://awscli.amazonaws.com/awscli-exe-linux-x86_64.zip" -o "awscliv2.zip"
+  sudo apt install -y unzip
+  unzip awscliv2.zip
+  sudo ./aws/install
+  rm -rf aws awscliv2.zip
+fi
 aws --version
 
 echo "=== [3/8] Clone repository ==="
@@ -42,8 +50,8 @@ echo "=== [5b/8] Build React dashboard ==="
 cd src/ui && npm ci && npm run build && cd ../..
 
 echo "=== [6/8] Copy .env (you must do this manually) ==="
-echo "ACTION REQUIRED: scp your .env to $APP_DIR/.env"
-echo "  scp .env ec2-user@<your-ec2-ip>:$APP_DIR/.env"
+echo "ACTION REQUIRED: open a new terminal and run:"
+echo "  scp -i new_instance.pem D:/siddarth/youtube/shorts-bot/.env ubuntu@54.183.198.139:$APP_DIR/.env"
 echo "Press ENTER once .env is in place..."
 read -r
 
@@ -60,9 +68,8 @@ echo "Services enabled. They will run on next boot."
 echo ""
 echo "=== Setup complete ==="
 echo "Next steps:"
-echo "  1. Assign an Elastic IP to this instance in AWS console"
-echo "  2. Attach the EC2 IAM role (ec2-pipeline-role) in AWS console"
-echo "  3. Create the Lambda function (see infra/lambda_start_ec2.py)"
-echo "  4. Create EventBridge Scheduler rule (cron: 0 3:30 * * ? *)"
-echo "  5. Test: sudo systemctl start shorts-pipeline.service"
+echo "  1. Attach the EC2 IAM role (ec2-pipeline-role) in AWS console"
+echo "  2. Create the Lambda function (see infra/lambda_start_ec2.py)"
+echo "  3. Create EventBridge Scheduler rule (cron: 0 3:30 * * ? *)"
+echo "  4. Test: sudo systemctl start shorts-pipeline.service"
 echo "     Then: journalctl -fu shorts-pipeline.service"

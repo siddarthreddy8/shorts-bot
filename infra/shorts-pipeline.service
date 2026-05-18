@@ -5,19 +5,19 @@ Wants=network-online.target
 
 [Service]
 Type=oneshot
-User=ec2-user
-WorkingDirectory=/home/ec2-user/shorts-bot
+User=ubuntu
+WorkingDirectory=/home/ubuntu/shorts-bot
 
 ExecStart=/usr/bin/timeout 5400 \
-    /home/ec2-user/shorts-bot/.venv/bin/python -m src.main run-pipeline
+    /home/ubuntu/shorts-bot/.venv/bin/python -m src.main run-pipeline
 
 ExecStopPost=/bin/bash -c \
-    'REGION=$(curl -sf http://169.254.169.254/latest/meta-data/placement/region || echo us-east-1); \
-     aws ec2 stop-instances \
-     --instance-ids "$(curl -sf http://169.254.169.254/latest/meta-data/instance-id)" \
-     --region "$REGION" || true'
+    'TOKEN=$(curl -sf -X PUT "http://169.254.169.254/latest/api/token" -H "X-aws-ec2-metadata-token-ttl-seconds: 21600"); \
+     REGION=$(curl -sf -H "X-aws-ec2-metadata-token: $TOKEN" http://169.254.169.254/latest/meta-data/placement/region || echo us-west-1); \
+     INSTANCE_ID=$(curl -sf -H "X-aws-ec2-metadata-token: $TOKEN" http://169.254.169.254/latest/meta-data/instance-id); \
+     aws ec2 stop-instances --instance-ids "$INSTANCE_ID" --region "$REGION" || true'
 
-EnvironmentFile=/home/ec2-user/shorts-bot/.env
+EnvironmentFile=/home/ubuntu/shorts-bot/.env
 StandardOutput=journal
 StandardError=journal
 Restart=no
