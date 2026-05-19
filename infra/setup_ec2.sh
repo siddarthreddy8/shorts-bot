@@ -38,6 +38,19 @@ echo "=== [3/8] Clone repository ==="
 git clone "$REPO_URL" "$APP_DIR"
 cd "$APP_DIR"
 
+echo "=== [3b/8] CloudWatch agent ==="
+CW_DEB="amazon-cloudwatch-agent.deb"
+curl -sO "https://s3.amazonaws.com/amazoncloudwatch-agent/ubuntu/amd64/latest/amazon-cloudwatch-agent.deb"
+sudo dpkg -i -E "$CW_DEB"
+rm -f "$CW_DEB"
+sudo cp "$APP_DIR/infra/amazon-cloudwatch-agent.json" \
+  /opt/aws/amazon-cloudwatch-agent/etc/amazon-cloudwatch-agent.json
+sudo /opt/aws/amazon-cloudwatch-agent/bin/amazon-cloudwatch-agent-ctl \
+  -a fetch-config -m ec2 \
+  -c file:/opt/aws/amazon-cloudwatch-agent/etc/amazon-cloudwatch-agent.json -s
+sudo systemctl enable amazon-cloudwatch-agent
+echo "CloudWatch agent installed and running."
+
 echo "=== [4/8] Python virtual environment ==="
 python3 -m venv .venv
 .venv/bin/pip install --upgrade pip
