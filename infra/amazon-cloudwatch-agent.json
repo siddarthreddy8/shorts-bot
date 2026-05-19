@@ -1,0 +1,22 @@
+{
+  "logs": {
+    "logs_collected": {
+      "journald": {
+        "collect_list": [
+          {
+            "log_group_name": "/shorts-bot/pipeline",
+            "log_stream_name": "{instance_id}",
+            "units": ["shorts-pipeline.service"],
+            "retention_in_days": 7
+          },
+          {
+            "log_group_name": "/shorts-bot/dashboard",
+            "log_stream_name": "{instance_id}",
+            "units": ["shorts-dashboard.service"],
+            "retention_in_days": 7
+          }
+        ]
+      }
+    }
+  }
+}
